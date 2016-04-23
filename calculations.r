@@ -1,35 +1,14 @@
-# Initialitation of working enviroment and directory ----------------------
-
-#Remove all of your working data
-rm(list = ls())
-# Closes the current graphical device
-graphics.off()
-#if (.Platform$GUI=="RStudio") {dev.off()} else{graphics.off()}
-# Rstudio also have dev.off()
-# Clear the console sending Ctrl+L in Rstudio. 
-if (.Platform$GUI=="RStudio") {cat("\014"); cat("\f")}
-# par(mar = rep(4, 4))
-# default par("mar")
-# par(mar=c(5.1,4.1,4.1,2.1))
-#if (!is.null(sessionInfo()$otherPkgs$rkward)) {dev.off()}
 
 
-#Set Workdirectory
-if (Sys.info()['nodename'] == 'RUBEN-PORTATIL'){
-    WD <- "D:/_TFM_/GitHub/Calculations_and_more_things"
-} else if (Sys.info()['user'] == 'ruben'){
-    WD <- "/home/ruben/Documentos/_TFM_/Github/Calculations_and_more_things"
-} else if (Sys.info()['nodename'] == 'RUBEN-PC'){
-    WD <- "F:/Fisica/Github/Calculations_and_more_things"
-} else{
-    WD <- getwd()
-}
-f1 <- paste(WD, 'functions_ncdf.r', sep="/")
-f2 <- paste(WD, 'ice_data', sep="/")
+# Define working directory
+WD = "./"
+
+f1 = paste(WD, 'functions_ncdf.r', sep="/")
+f2 = paste(WD, 'ice_data', sep="/")
 while (file.exists(f1)==FALSE & is.na(file.info(f2)["isdir"])==TRUE) {
-    WD <- readline("Write the Working Directory with the ice_data and .R: ")
-    f1 <- paste(WD, 'functions_ncdf.r', sep="/")
-    f2 <- paste(WD, 'ice_data', sep="/")
+    WD = readline("Write the Working Directory with the ice_data and .R: ")
+    f1 = paste(WD, 'functions_ncdf.r', sep="/")
+    f2 = paste(WD, 'ice_data', sep="/")
 }
 setwd(WD)
 rm(list = c("f1","f2","WD"))
@@ -41,8 +20,8 @@ source('load_data.r')
 Xc = BASINS_nasa$xc
 Yc = BASINS_nasa$yc
 area = BASINS_nasa$area
-# lon2D <- BASINS_nasa$lon2D
-# lat2D <- BASINS_nasa$lat2D
+# lon2D = BASINS_nasa$lon2D
+# lat2D = BASINS_nasa$lat2D
 
 ## Regions of NASA extended
 nasa_basin = BASINS_nasa$basin
@@ -52,14 +31,14 @@ nasa_basin_mask = BASINS_nasa$basin_mask
 ## Ice and land mask from TOPO BEDMAP2
 mask_ice = TOPO_BEDMAP2$mask_ice
 
-mask_ice_land <- apply(mask_ice, c(1, 2), function(x) if (x==2) 1 else 0)
-mask_ice_ice <- apply(mask_ice, c(1, 2), function(x) if (x==3) 1 else 0)
-mask_ice_all <- apply(mask_ice, c(1, 2), function(x) if (x!=0) 1 else 0)
+mask_ice_land = apply(mask_ice, c(1, 2), function(x) if (x==2) 1 else 0)
+mask_ice_ice = apply(mask_ice, c(1, 2), function(x) if (x==3) 1 else 0)
+mask_ice_all = apply(mask_ice, c(1, 2), function(x) if (x!=0) 1 else 0)
 
 ## Ice and land mask from RACMO23
-mask_racmo <- RACMO23_ERA_INTERIM_monthly_1981_2010$mask
-mask_racmo_land <- RACMO23_ERA_INTERIM_monthly_1981_2010$mask_grounded
-mask_racmo_ice <- mask_racmo - mask_racmo_land
+mask_racmo = RACMO23_ERA_INTERIM_monthly_1981_2010$mask
+mask_racmo_land = RACMO23_ERA_INTERIM_monthly_1981_2010$mask_grounded
+mask_racmo_ice = mask_racmo - mask_racmo_land
 
 
 source('function_regions.r')
@@ -68,9 +47,9 @@ region_mask2=region.mask(land=mask_racmo_land, ice=mask_racmo_ice)
 
 
 # Basal melt rate, actual present day
-bmelt <- BMELT_R13$bm_actual
+bmelt = BMELT_R13$bm_actual
 
-bmeltc <- BMELT_R13_conservative$bm_actual
+bmeltc = BMELT_R13_conservative$bm_actual
 
 # Units   ######################################################################
 # magnitude : from ncdf to table
@@ -85,11 +64,11 @@ bmeltc <- BMELT_R13_conservative$bm_actual
 # Creating data frame with areas  ##############################################
 library(gridExtra)
 
-index <- paste("region",seq(length.out=range(nasa_basin)[2]),sep="")
-df <- data.frame(row.names=index)
+index = paste("region",seq(length.out=range(nasa_basin)[2]),sep="")
+df = data.frame(row.names=index)
 
-df[,"Area_bedmap"] <- sapply(region_mask, function(x) x$area) 
-#df[,"Area_racmo"] <- sapply(region_mask2, function(x) x$area)
+df[,"Area_bedmap"] = sapply(region_mask, function(x) x$area) 
+#df[,"Area_racmo"] = sapply(region_mask2, function(x) x$area)
 
 
 # Calculations #################################################################
@@ -98,24 +77,24 @@ df[,"Area_bedmap"] <- sapply(region_mask, function(x) x$area)
 #   RACMO23_ERA_INTERIM have mean monthly
 #   RACMO2_ANT3K55_HadCM3_A1B_monthly have accumulative monthly
 
-smb_racmo.month <- RACMO23_ERA_INTERIM_monthly_1981_2010$smb
-smb_racmo.year <- apply(smb_racmo.month,c(1,2),mean)
+smb_racmo.month = RACMO23_ERA_INTERIM_monthly_1981_2010$smb
+smb_racmo.year = apply(smb_racmo.month,c(1,2),mean)
 
-SMB.month <- list(RACMO2_ANT3K55_HadCM3_A1B_monthly_2000_2010$smb,
+SMB.month = list(RACMO2_ANT3K55_HadCM3_A1B_monthly_2000_2010$smb,
             RACMO2_ANT3K55_HadCM3_A1B_monthly_2001_2030$smb, 
             RACMO2_ANT3K55_HadCM3_A1B_monthly_2071_2100$smb)
 
-SMB.year <- lapply(SMB.month, function(x) apply(x,c(1,2),sum))
+SMB.year = lapply(SMB.month, function(x) apply(x,c(1,2),sum))
 
 for (i in 1:length(index)){
-    smb_racmo <- sum(smb_racmo.year*region_mask2[[i]]$ice*area)/1e12*365
-    smb_racmo_bm <- sum(smb_racmo.year*region_mask[[i]]$ice*area)/1e12*365
-    df[i,"SMB-RACMO23-racmo"] <- smb_racmo
-    df[i,"SMB-RACMO23-bedmap"] <- smb_racmo_bm
-    smb <- sapply(SMB.year, function(x) sum(x*region_mask[[i]]$ice*area)/1e12)
-    df[i,"SMB-2000-2010"] <- smb[1]
-    df[i,"dSMB-2001-2030"] <- (smb[1] - smb[2])
-    df[i,"dSMB-2071-2100"] <- (smb[1] - smb[3])
+    smb_racmo = sum(smb_racmo.year*region_mask2[[i]]$ice*area)/1e12*365
+    smb_racmo_bm = sum(smb_racmo.year*region_mask[[i]]$ice*area)/1e12*365
+    df[i,"SMB-RACMO23-racmo"] = smb_racmo
+    df[i,"SMB-RACMO23-bedmap"] = smb_racmo_bm
+    smb = sapply(SMB.year, function(x) sum(x*region_mask[[i]]$ice*area)/1e12)
+    df[i,"SMB-2000-2010"] = smb[1]
+    df[i,"dSMB-2001-2030"] = (smb[1] - smb[2])
+    df[i,"dSMB-2071-2100"] = (smb[1] - smb[3])
 }
 
 pdf("output/df_smb.pdf", height=8, width=11.5); grid.table(round(df, digits = 2)); dev.off()
@@ -124,14 +103,14 @@ pdf("output/df_smb.pdf", height=8, width=11.5); grid.table(round(df, digits = 2)
 ## BMELT_13 #
 ## BMELT_13_conservative #
 
-df_2 <- data.frame(row.names=index)
+df_2 = data.frame(row.names=index)
 
 for (i in 1:length(index)){
     ii = which(region_mask2[[i]]$ice == 1)
-    #df_2[i,"bmelt(Gt/year)"] <- mean(region_mask2[[i]]$ice[ii]*bmelt[ii])
-    df_2[i,"bmelt(Gt/year)"] <- mean((bmelt*region_mask2[[i]]$ice)[ii])
-    #df_2[i,"bm_equil(Gt/year)"] <- mean((BMELT_R13$bm_equil*region_mask2[[i]]$ice)[ii])
-    df_2[i,"bmeltc(Gt/year)"] <- sum(bmeltc*region_mask[[i]]$ice*area)
+    #df_2[i,"bmelt(Gt/year)"] = mean(region_mask2[[i]]$ice[ii]*bmelt[ii])
+    df_2[i,"bmelt(Gt/year)"] = mean((bmelt*region_mask2[[i]]$ice)[ii])
+    #df_2[i,"bm_equil(Gt/year)"] = mean((BMELT_R13$bm_equil*region_mask2[[i]]$ice)[ii])
+    df_2[i,"bmeltc(Gt/year)"] = sum(bmeltc*region_mask[[i]]$ice*area)
 }
 
 pdf("output/df_melt.pdf", height=8, width=11.5); grid.table(round(df_2, digits = 2)); dev.off()
@@ -140,7 +119,7 @@ pdf("output/df_melt.pdf", height=8, width=11.5); grid.table(round(df_2, digits =
 ## Plots ##################################################################
 #image(Xc, Yc, nasa_basin,breaks=c(1:27), col=rainbow(26))
 # color=sample(colours(), 27)
-colors <- c('chocolate4', 'orange', 'lightblue4', 'lightskyblue', 'blue', 
+colors = c('chocolate4', 'orange', 'lightblue4', 'lightskyblue', 'blue', 
             'mediumspringgreen', 'firebrick4', 'gold', 'darkolivegreen', 
             'sandybrown', 'aquamarine4', 'darkgoldenrod', 'gray80', 'seagreen', 
             'pink3', 'khaki1', 'darkred', 'green', 'magenta', 'lightsteelblue', 
@@ -173,8 +152,8 @@ require(fields)
 # ## Añadir points(xy[[i]]$x, xy[[i]]$y, pch = ".", cex = .1) al bucle donde pinta cada region
 
 ## Contour from NASA
-# mask_plot <-  nasa_basin * nasa_basin_mask
-# mask_plot[mask_plot==0] <- NA
+# mask_plot =  nasa_basin * nasa_basin_mask
+# mask_plot[mask_plot==0] = NA
 
 # image(Xc, Yc, mask_plot,col=NA)
 # for (i in 1:27){
@@ -193,9 +172,9 @@ require(fields)
 
 
 ## Contour from TOPO BEDMAP2
-mask_plot2 <- nasa_basin * mask_ice_all
-mask_plot2_unit <- apply(mask_plot2, c(1, 2), function(x) if (x!=0) x/x else x)
-mask_plot2[mask_plot2==0] <- NA
+mask_plot2 = nasa_basin * mask_ice_all
+mask_plot2_unit = apply(mask_plot2, c(1, 2), function(x) if (x!=0) x/x else x)
+mask_plot2[mask_plot2==0] = NA
 
 pdf("output/TOPO_BEDMAP2.pdf")
 image(Xc, Yc, mask_plot2,col=NA)
@@ -217,8 +196,8 @@ dev.off()
 
 
 ## Contour from RACMO23
-# mask_plot3 <- nasa_basin * mask_racmo
-# mask_plot3[mask_plot3==0] <- NA
+# mask_plot3 = nasa_basin * mask_racmo
+# mask_plot3[mask_plot3==0] = NA
 
 # pdf("RACMO23.pdf")
 # image(Xc, Yc, mask_racmo,col=NA)
@@ -248,37 +227,37 @@ image.plot(Xc, Yc, SMB.year[[1]],nlevel=1, col=rainbow(27))
 
 # Creation of ice front mask ###################################################
 
-i1 <- which(mask_ice_all == 1, arr.ind=T)
+i1 = which(mask_ice_all == 1, arr.ind=T)
 
-iceland <- region_any(mask_ice_all)
+iceland = region_any(mask_ice_all)
 jpeg('output/Antartic.jpeg', width = 720, height = 720, quality=100)
 image(Xc, Yc, iceland); title("Contour Antartic")
 dev.off()
 jpeg('output/land.jpeg', width = 720, height = 720, quality=100)
-landcontour <- region_any(mask_ice_land)
+landcontour = region_any(mask_ice_land)
 image(Xc, Yc, landcontour); title("Contour grounding land")
 dev.off()
 jpeg('output/ice.jpeg', width = 720, height = 720, quality=100)
-icecontour <- region_any(mask_ice_ice)
+icecontour = region_any(mask_ice_ice)
 image(Xc, Yc, icecontour); title("Contour ice shelf")
 dev.off()
 jpeg('output/icefront.jpeg', width = 720, height = 720, quality=100)
-icefront <- region_any(mask_ice, 3)
+icefront = region_any(mask_ice, 3)
 image(Xc, Yc, icefront); title("Contour icefront")
 dev.off()
 
 
-# df_if <- data.frame(row.names=index)
+# df_if = data.frame(row.names=index)
 # for (i in 1:length(index)){
-#     smb_racmo <- sum(icefront*region_mask2[[i]]$ice*area)/1e12*365
-#     smb_racmo_bm <- sum(icefront*region_mask[[i]]$ice*area)/1e12*365
-#     df_if[i,"icefront"] <- 
-#     smb <- sapply(SMB.year, function(x) sum(x*region_mask[[i]]$ice*area)/1e12)
+#     smb_racmo = sum(icefront*region_mask2[[i]]$ice*area)/1e12*365
+#     smb_racmo_bm = sum(icefront*region_mask[[i]]$ice*area)/1e12*365
+#     df_if[i,"icefront"] = 
+#     smb = sapply(SMB.year, function(x) sum(x*region_mask[[i]]$ice*area)/1e12)
 # 
 # }
 
 
-groundline <- regions_uv(mask_ice_land)
+groundline = regions_uv(mask_ice_land)
 jpeg('output/mask_u.jpeg', width = 720, height = 720, quality=100)
 image(Xc,Yc,groundline$u, col=c('blue', NA, 'red'))
 legend("bottomleft", c("-1","1"), lty=1, col=c("blue", "red"), cex=.70, bty='n')
@@ -290,20 +269,20 @@ legend("bottomleft", c("-1","1"), lty=1, col=c("blue", "red"), cex=.70, bty='n')
 title("v with sign dS")
 dev.off()
 
-# icelon <- mask_ice_ice*lon2D
-# icelat <- mask_ice_ ice*lat2D
+# icelon = mask_ice_ice*lon2D
+# icelat = mask_ice_ ice*lat2D
 
-h <- TOPO_BEDMAP2$H
-##flux_gl_u <- -groundline$u * icelon * VEL_R11$u
-flux_gl_v <- (-groundline$u * 40e3 * VEL_R11$v * h /1e6)
-flux_gl_v_plot <- apply(flux_gl_v, c(1,2), function(x) if (x==0) NA else x)
+h = TOPO_BEDMAP2$H
+##flux_gl_u = -groundline$u * icelon * VEL_R11$u
+flux_gl_v = (-groundline$u * 40e3 * VEL_R11$v * h /1e6)
+flux_gl_v_plot = apply(flux_gl_v, c(1,2), function(x) if (x==0) NA else x)
 image.plot(Xc,Yc, flux_gl_v_plot)
 
 
-df_gl <- data.frame(row.names=index)
+df_gl = data.frame(row.names=index)
 for (i in 1:length(index)){
-    df_gl[i,"groundline-racmo"] <- sum(flux_gl_v*region_mask2[[i]]$ice)
-    df_gl[i,"groundline-bm"] <- sum(flux_gl_v*region_mask[[i]]$ice)
+    df_gl[i,"groundline-racmo"] = sum(flux_gl_v*region_mask2[[i]]$ice)
+    df_gl[i,"groundline-bm"] = sum(flux_gl_v*region_mask[[i]]$ice)
 }
 
 

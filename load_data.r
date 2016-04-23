@@ -20,3 +20,13 @@ for (i in 1:length(dat_names)) {
     assign(dat_names[i], read.nc(nc))
     close.nc(nc)
 }
+
+
+# Make some additional global helper variables
+# common to all datasets 
+Xc    = BASINS_nasa$xc
+Yc    = BASINS_nasa$yc
+area  = BASINS_nasa$area
+lon2D = BASINS_nasa$lon2D
+lat2D = BASINS_nasa$lat2D
+

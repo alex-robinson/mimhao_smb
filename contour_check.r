@@ -1,3 +1,8 @@
+nasa_basin = BASINS_nasa$basin
+## Antarctic Mask from NASA (ice+land)
+nasa_basin_mask = BASINS_nasa$basin_mask
+
+
 # # Plot Checking #########################################################
 contour(Xc, Yc, nasa_basin_mask, nlevels=1, drawlabels=FALSE,lwd=2, col="blue")
 contour(Xc, Yc, mask_ice_all, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="red")
