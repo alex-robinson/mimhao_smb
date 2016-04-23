@@ -1,55 +1,39 @@
 
+# First, make sure to load the data using:
+# `source('load_data.r')`
 
-# Define working directory
-WD = "./"
+# Load dependencies 
+source('function_regions.r')
+library(gridExtra)
+library(fields)
 
-f1 = paste(WD, 'functions_ncdf.r', sep="/")
-f2 = paste(WD, 'ice_data', sep="/")
-while (file.exists(f1)==FALSE & is.na(file.info(f2)["isdir"])==TRUE) {
-    WD = readline("Write the Working Directory with the ice_data and .R: ")
-    f1 = paste(WD, 'functions_ncdf.r', sep="/")
-    f2 = paste(WD, 'ice_data', sep="/")
-}
-setwd(WD)
-rm(list = c("f1","f2","WD"))
-if (!dir.exists("output")) {dir.create("output")}
+# Define the output folder 
+outfldr = "output" 
 
-# Load data and get diferents masks ============================================
-
-source('load_data.r')
-Xc = BASINS_nasa$xc
-Yc = BASINS_nasa$yc
-area = BASINS_nasa$area
-# lon2D = BASINS_nasa$lon2D
-# lat2D = BASINS_nasa$lat2D
+# Get diferents masks ============================================
 
 ## Regions of NASA extended
 nasa_basin = BASINS_nasa$basin
-## Antartic' Mask from NASA (ice+land)
+## Antarctica Mask from NASA (ice+land)
 nasa_basin_mask = BASINS_nasa$basin_mask
 
 ## Ice and land mask from TOPO BEDMAP2
 mask_ice = TOPO_BEDMAP2$mask_ice
 
 mask_ice_land = apply(mask_ice, c(1, 2), function(x) if (x==2) 1 else 0)
-mask_ice_ice = apply(mask_ice, c(1, 2), function(x) if (x==3) 1 else 0)
-mask_ice_all = apply(mask_ice, c(1, 2), function(x) if (x!=0) 1 else 0)
+mask_ice_ice  = apply(mask_ice, c(1, 2), function(x) if (x==3) 1 else 0)
+mask_ice_all  = apply(mask_ice, c(1, 2), function(x) if (x!=0) 1 else 0)
 
 ## Ice and land mask from RACMO23
-mask_racmo = RACMO23_ERA_INTERIM_monthly_1981_2010$mask
+mask_racmo      = RACMO23_ERA_INTERIM_monthly_1981_2010$mask
 mask_racmo_land = RACMO23_ERA_INTERIM_monthly_1981_2010$mask_grounded
-mask_racmo_ice = mask_racmo - mask_racmo_land
+mask_racmo_ice  = mask_racmo - mask_racmo_land
 
-
-source('function_regions.r')
 region_mask=region.mask(land=mask_ice_land, ice=mask_ice_ice)
 region_mask2=region.mask(land=mask_racmo_land, ice=mask_racmo_ice)
 
-
 # Basal melt rate, actual present day
 bmelt = BMELT_R13$bm_actual
-
-bmeltc = BMELT_R13_conservative$bm_actual
 
 # Units   ######################################################################
 # magnitude : from ncdf to table
@@ -62,8 +46,6 @@ bmeltc = BMELT_R13_conservative$bm_actual
 
 
 # Creating data frame with areas  ##############################################
-library(gridExtra)
-
 index = paste("region",seq(length.out=range(nasa_basin)[2]),sep="")
 df = data.frame(row.names=index)
 
@@ -97,8 +79,8 @@ for (i in 1:length(index)){
     df[i,"dSMB-2071-2100"] = (smb[1] - smb[3])
 }
 
-pdf("output/df_smb.pdf", height=8, width=11.5); grid.table(round(df, digits = 2)); dev.off()
-
+pdf(file.path(outfldr,"df_smb.pdf"), height=8, width=11.5); grid.table(round(df, digits = 2))
+dev.off()
 
 ## BMELT_13 #
 ## BMELT_13_conservative #
@@ -110,10 +92,10 @@ for (i in 1:length(index)){
     #df_2[i,"bmelt(Gt/year)"] = mean(region_mask2[[i]]$ice[ii]*bmelt[ii])
     df_2[i,"bmelt(Gt/year)"] = mean((bmelt*region_mask2[[i]]$ice)[ii])
     #df_2[i,"bm_equil(Gt/year)"] = mean((BMELT_R13$bm_equil*region_mask2[[i]]$ice)[ii])
-    df_2[i,"bmeltc(Gt/year)"] = sum(bmeltc*region_mask[[i]]$ice*area)
 }
 
-pdf("output/df_melt.pdf", height=8, width=11.5); grid.table(round(df_2, digits = 2)); dev.off()
+pdf(file.path(outfldr,"df_melt.pdf"), height=8, width=11.5); grid.table(round(df_2, digits = 2))
+dev.off()
 
 
 ## Plots ##################################################################
@@ -125,9 +107,8 @@ colors = c('chocolate4', 'orange', 'lightblue4', 'lightskyblue', 'blue',
             'pink3', 'khaki1', 'darkred', 'green', 'magenta', 'lightsteelblue', 
             'mediumblue', 'lightsalmon', 'aquamarine', 'yellow2', 'cadetblue1', 
             'darkorange', 'darkgreen')
-require(fields)
 
-# image.plot(Xc, Yc, mask_plot, nlevel=27, col=rainbow(27), main="Antartic (NASA)")
+# image.plot(Xc, Yc, mask_plot, nlevel=27, col=rainbow(27), main="Antarctica (NASA)")
 # contour(Xc, Yc, mask_ice_land, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=3, col="black")
 # for (i in 1:27){
 #     contour(Xc, Yc, region_mask[[i]]$ice, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=1, col="white")
@@ -168,7 +149,7 @@ require(fields)
 #     }
 # }
 # contour(Xc, Yc, nasa_basin_mask, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="black")
-# title("Antartic (NASA)")
+# title("Antarctica (NASA)")
 
 
 ## Contour from TOPO BEDMAP2
@@ -176,7 +157,7 @@ mask_plot2 = nasa_basin * mask_ice_all
 mask_plot2_unit = apply(mask_plot2, c(1, 2), function(x) if (x!=0) x/x else x)
 mask_plot2[mask_plot2==0] = NA
 
-pdf("output/TOPO_BEDMAP2.pdf")
+pdf(file.path(outfldr,"TOPO_BEDMAP2.pdf"))
 image(Xc, Yc, mask_plot2,col=NA)
 for (i in 1:27){
     #image(Xc, Yc, region_mask[[i]]$ice, add=TRUE, col=c(NA,colors[i]))
@@ -191,7 +172,7 @@ for (i in 1:27){
 }
 contour(Xc, Yc, mask_ice_land, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="red1")
 contour(Xc, Yc, mask_ice_all, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="black")
-title("Antartic (TOPO BEDMAP2)")
+title("Antarctica (TOPO BEDMAP2)")
 dev.off()
 
 
@@ -215,11 +196,11 @@ dev.off()
 # }
 # contour(Xc, Yc, mask_racmo_land, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="red")
 # contour(Xc, Yc, mask_racmo, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="black")
-# title("Antartic (RACMO23)")
+# title("Antarctica (RACMO23)")
 # dev.off()
 
 
-image.plot(Xc, Yc, SMB.year[[1]],nlevel=1, col=rainbow(27))
+# image.plot(Xc, Yc, SMB.year[[1]],nlevel=1, col=rainbow(27))
 # contour(Xc, Yc, SMB.year[[1]], add=TRUE, drawlabels=FALSE,lwd=0.05, col="white")
 
 # filled.contour(Xc, Yc, SMB.year[[1]], color.palette=rainbow, plot.axes = {axis(1); axis(2) ; contour(Xc, Yc, mask_ice_land, levels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="brown"); contour(Xc, Yc, mask_ice_ice, levels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="white"); contour(Xc, Yc, mask_smb, add=TRUE, drawlabels=FALSE,lwd=0.5, col="darkgrey")})
@@ -230,18 +211,18 @@ image.plot(Xc, Yc, SMB.year[[1]],nlevel=1, col=rainbow(27))
 i1 = which(mask_ice_all == 1, arr.ind=T)
 
 iceland = region_any(mask_ice_all)
-jpeg('output/Antartic.jpeg', width = 720, height = 720, quality=100)
-image(Xc, Yc, iceland); title("Contour Antartic")
+jpeg(file.path(outfldr,"Antarctica.jpeg"), width = 720, height = 720, quality=100)
+image(Xc, Yc, iceland); title("Contour Antarctica")
 dev.off()
-jpeg('output/land.jpeg', width = 720, height = 720, quality=100)
+jpeg(file.path(outfldr,"land.jpeg"), width = 720, height = 720, quality=100)
 landcontour = region_any(mask_ice_land)
 image(Xc, Yc, landcontour); title("Contour grounding land")
 dev.off()
-jpeg('output/ice.jpeg', width = 720, height = 720, quality=100)
+jpeg(file.path(outfldr,"ice.jpeg"), width = 720, height = 720, quality=100)
 icecontour = region_any(mask_ice_ice)
 image(Xc, Yc, icecontour); title("Contour ice shelf")
 dev.off()
-jpeg('output/icefront.jpeg', width = 720, height = 720, quality=100)
+jpeg(file.path(outfldr,"icefront.jpeg"), width = 720, height = 720, quality=100)
 icefront = region_any(mask_ice, 3)
 image(Xc, Yc, icefront); title("Contour icefront")
 dev.off()
@@ -258,12 +239,12 @@ dev.off()
 
 
 groundline = regions_uv(mask_ice_land)
-jpeg('output/mask_u.jpeg', width = 720, height = 720, quality=100)
+jpeg(file.path(outfldr,"mask_u.jpeg"), width = 720, height = 720, quality=100)
 image(Xc,Yc,groundline$u, col=c('blue', NA, 'red'))
 legend("bottomleft", c("-1","1"), lty=1, col=c("blue", "red"), cex=.70, bty='n')
 title("u with sign dS")
 dev.off()
-jpeg('output/mask_v.jpeg', width = 720, height = 720, quality=100)
+jpeg(file.path(outfldr,"mask_v.jpeg"), width = 720, height = 720, quality=100)
 image(Xc,Yc,groundline$v, col=c('blue', NA, 'red'))
 legend("bottomleft", c("-1","1"), lty=1, col=c("blue", "red"), cex=.70, bty='n')
 title("v with sign dS")
@@ -276,7 +257,7 @@ h = TOPO_BEDMAP2$H
 ##flux_gl_u = -groundline$u * icelon * VEL_R11$u
 flux_gl_v = (-groundline$u * 40e3 * VEL_R11$v * h /1e6)
 flux_gl_v_plot = apply(flux_gl_v, c(1,2), function(x) if (x==0) NA else x)
-image.plot(Xc,Yc, flux_gl_v_plot)
+#image.plot(Xc,Yc, flux_gl_v_plot)
 
 
 df_gl = data.frame(row.names=index)
