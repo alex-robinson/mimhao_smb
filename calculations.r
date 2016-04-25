@@ -197,7 +197,6 @@ for (i in 1:length(index)){
     df_gl[i,"groundline-bm"]    = sum(flux_gl_v*region_mask[[i]]$ice)
 }
 
-
 # # Plot Checking ###################################################
 comparation=FALSE
 if (comparation==TRUE){
