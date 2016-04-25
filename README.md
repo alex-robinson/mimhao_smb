@@ -14,28 +14,18 @@ source("calculations.r")
 Running these commands will process the input data, prepare various masks,
 calculate quantities of interest and output some data tables and plots.
 
--------------------------------------------------------------------------------------------------
+---------------------------------------------
 
-> Help for work with github:
+# Initial local repository setup via github
+1. Clone the repository to your local computer.
+2. Create a branch to work on.
+3. Push your local branch to repository.
 
-	git clone https://github.com/alex-robinson/mimhao_smb.git
+```
+git clone https://github.com/alex-robinson/mimhao_smb.git
+git checkout -b your-branch
+git push -u origin your-branch
+```
 
-or with ssh
-
-	git clone git@github.com/alex-robinson/mimhao_smb.git
-
-> Update local repository (inside mimhao_smb)
-
-	git fetch origin
-
-> Commands for update modifications in local repository to github (exist more variants, per file...)
-
-	git add .
-	or
-	gid add <FILENAME>
-
-	git commit -m ""
-
-	git push origin master
-	or
-	git push git@github.com:alex-robinson/mimhao_smb.git
+You're now ready to work locally, `add` changes, `commit` them to the
+local repository, and `push` them back to the central repository.
