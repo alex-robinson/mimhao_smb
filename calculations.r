@@ -55,6 +55,34 @@ df[,"Area_bedmap"] = sapply(region_mask, function(x) x$area)
 
 # Calculations #################################################################
 
+## ajr: test calcs 
+
+smb_ann_era0 = apply(RACMO23_ERA_INTERIM_monthly_1981_2010$smb,c(1,2),mean)*365*1e-3
+
+smb_ann_had0 = apply(RACMO2_ANT3K55_HadCM3_A1B_monthly_2000_2010$smb,c(1,2),sum)*1e-3
+smb_ann_had1 = apply(RACMO2_ANT3K55_HadCM3_A1B_monthly_2001_2030$smb,c(1,2),sum)*1e-3
+smb_ann_had2 = apply(RACMO2_ANT3K55_HadCM3_A1B_monthly_2071_2100$smb,c(1,2),sum)*1e-3
+dsmb_ann_had1 = smb_ann_had1-smb_ann_had0
+dsmb_ann_had2 = smb_ann_had2-smb_ann_had0
+
+# par(mfrow=c(1,3))
+# image.plot(Xc,Yc,smb_ann_era0)
+# contour(Xc,Yc,nasa_basin_mask,add=TRUE,col=1)
+# contour(Xc,Yc,mask_ice_ice,add=TRUE,col=2,lwd=2)
+
+# image.plot(Xc,Yc,dsmb_ann_had1)
+# contour(Xc,Yc,nasa_basin_mask,add=TRUE,col=1)
+# contour(Xc,Yc,mask_ice_ice,add=TRUE,col=2,lwd=2)
+
+# image.plot(Xc,Yc,dsmb_ann_had2)
+# contour(Xc,Yc,nasa_basin_mask,add=TRUE,col=1)
+# contour(Xc,Yc,mask_ice_ice,add=TRUE,col=2,lwd=2)
+
+
+
+##################
+
+
 ## SMB #
 #   RACMO23_ERA_INTERIM have mean monthly
 #   RACMO2_ANT3K55_HadCM3_A1B_monthly have accumulative monthly
@@ -75,8 +103,8 @@ for (i in 1:length(index)){
     df[i,"SMB-RACMO23-bedmap"] = smb_racmo_bm
     smb = sapply(SMB.year, function(x) sum(x*region_mask[[i]]$ice*area)/1e12)
     df[i,"SMB-2000-2010"] = smb[1]
-    df[i,"dSMB-2001-2030"] = (smb[1] - smb[2])
-    df[i,"dSMB-2071-2100"] = (smb[1] - smb[3])
+    df[i,"dSMB-2001-2030"] = (smb[2] - smb[1])
+    df[i,"dSMB-2071-2100"] = (smb[3] - smb[1])
 }
 
 pdf(file.path(outfldr,"df_smb.pdf"), height=8, width=11.5)
@@ -187,6 +215,7 @@ dev.off()
 h = TOPO_BEDMAP2$H
 ##flux_gl_u = -groundline$u * icelon * VEL_R11$u
 flux_gl_v = (-groundline$u * 40e3 * VEL_R11$v * h /1e6)
+# flux_gl_v = ((-groundline$u * 40e3 * h + -groundline$v * 40e3 * h) /1e6)
 flux_gl_v_plot = apply(flux_gl_v, c(1,2), function(x) if (x==0) NA else x)
 #image.plot(Xc,Yc, flux_gl_v_plot)
 
