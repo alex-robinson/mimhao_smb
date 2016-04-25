@@ -17,6 +17,7 @@ dat_names = gsub("-","_",dat_names)
 for (i in 1:length(dat_names)) {
     nc = open.nc(file.path(data_fldr,files[i]))
     assign(dat_names[i], read.nc(nc))
+    cat("Loaded dataset: ",dat_names[i],"\n")
     close.nc(nc)
 }
 
@@ -27,5 +28,6 @@ Yc    = BASINS_nasa$yc
 area  = BASINS_nasa$area
 lon2D = BASINS_nasa$lon2D
 lat2D = BASINS_nasa$lat2D
+cat("Global dimensions: Xc, Yc, area, lon2D, lat2D","\n")
 
 data_loaded = TRUE 

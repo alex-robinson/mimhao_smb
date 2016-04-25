@@ -79,11 +79,11 @@ for (i in 1:length(index)){
     df[i,"dSMB-2071-2100"] = (smb[1] - smb[3])
 }
 
-pdf(file.path(outfldr,"df_smb.pdf"), height=8, width=11.5); grid.table(round(df, digits = 2))
+pdf(file.path(outfldr,"df_smb.pdf"), height=8, width=11.5)
+grid.table(round(df, digits = 2))
 dev.off()
 
 ## BMELT_13 #
-## BMELT_13_conservative #
 
 df_2 = data.frame(row.names=index)
 
@@ -94,7 +94,8 @@ for (i in 1:length(index)){
     #df_2[i,"bm_equil(Gt/year)"] = mean((BMELT_R13$bm_equil*region_mask2[[i]]$ice)[ii])
 }
 
-pdf(file.path(outfldr,"df_melt.pdf"), height=8, width=11.5); grid.table(round(df_2, digits = 2))
+pdf(file.path(outfldr,"df_melt.pdf"), height=8, width=11.5)
+grid.table(round(df_2, digits = 2))
 dev.off()
 
 
@@ -107,50 +108,6 @@ colors = c('chocolate4', 'orange', 'lightblue4', 'lightskyblue', 'blue',
             'pink3', 'khaki1', 'darkred', 'green', 'magenta', 'lightsteelblue', 
             'mediumblue', 'lightsalmon', 'aquamarine', 'yellow2', 'cadetblue1', 
             'darkorange', 'darkgreen')
-
-# image.plot(Xc, Yc, mask_plot, nlevel=27, col=rainbow(27), main="Antarctica (NASA)")
-# contour(Xc, Yc, mask_ice_land, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=3, col="black")
-# for (i in 1:27){
-#     contour(Xc, Yc, region_mask[[i]]$ice, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=1, col="white")
-#     contour(Xc, Yc, region_mask[[i]]$land, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=1, col="gray20")
-# }
-
-# ## Obtencion de dos vectores para puntear las zonas de hielo
-# xy=list()
-# for (i in 1:27){
-#     xx=logical(0)
-#     yy=logical(0)
-#     for (ij in seq(length=length(Yc))){
-#         for (ii in seq(length=length(Xc))){
-#             if (region_mask[[i]]$ice[ii,ij] != 0) {
-#                 xx = append(xx, Xc[ii])
-#                 yy = append(yy, Yc[ij])
-#             }
-#         }
-#         xy[[paste("region",i,sep="")]] = list(x=xx,y=yy)
-#     }
-# }
-# ## Añadir points(xy[[i]]$x, xy[[i]]$y, pch = ".", cex = .1) al bucle donde pinta cada region
-
-## Contour from NASA
-# mask_plot =  nasa_basin * nasa_basin_mask
-# mask_plot[mask_plot==0] = NA
-
-# image(Xc, Yc, mask_plot,col=NA)
-# for (i in 1:27){
-#     image(Xc, Yc, region_mask[[i]]$ice, add=TRUE, col=c(NA,colors[i]))
-#     image(Xc, Yc, region_mask[[i]]$land, add=TRUE, col=c(NA,colors[i]))
-#     for (ii in seq(length=length(Xc))){
-#         for (ij in seq(length=length(Yc))){
-#             if (region_mask[[i]]$ice[ii,ij] != 0) {
-#                 points(Xc[ii], region_mask[[i]]$ice[ii,ij]*Yc[ij], pch = ".", cex = .1)
-#             }
-#         }
-#     }
-# }
-# contour(Xc, Yc, nasa_basin_mask, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="black")
-# title("Antarctica (NASA)")
-
 
 ## Contour from TOPO BEDMAP2
 mask_plot2 = nasa_basin * mask_ice_all
@@ -176,55 +133,29 @@ title("Antarctica (TOPO BEDMAP2)")
 dev.off()
 
 
-## Contour from RACMO23
-# mask_plot3 = nasa_basin * mask_racmo
-# mask_plot3[mask_plot3==0] = NA
-
-# pdf("RACMO23.pdf")
-# image(Xc, Yc, mask_racmo,col=NA)
-# for (i in 1:27){
-#     image(Xc, Yc, region_mask[[i]]$ice, add=TRUE, col=c(NA,colors[i]))
-#     image(Xc, Yc, region_mask[[i]]$land, add=TRUE, col=c(NA,colors[i]))
-#     for (ii in seq(length=length(Xc))){
-#         for (ij in seq(length=length(Yc))){
-#             if (region_mask[[i]]$ice[ii,ij] != 0) {
-#                 points(Xc[ii], region_mask[[i]]$ice[ii,ij]*Yc[ij], pch = ".", cex = .1)
-#             }
-#         }
-#     }
-# #    points(xy[[i]]$x, xy[[i]]$y, pch = ".", cex = .1)
-# }
-# contour(Xc, Yc, mask_racmo_land, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="red")
-# contour(Xc, Yc, mask_racmo, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="black")
-# title("Antarctica (RACMO23)")
-# dev.off()
-
-
-# image.plot(Xc, Yc, SMB.year[[1]],nlevel=1, col=rainbow(27))
-# contour(Xc, Yc, SMB.year[[1]], add=TRUE, drawlabels=FALSE,lwd=0.05, col="white")
-
-# filled.contour(Xc, Yc, SMB.year[[1]], color.palette=rainbow, plot.axes = {axis(1); axis(2) ; contour(Xc, Yc, mask_ice_land, levels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="brown"); contour(Xc, Yc, mask_ice_ice, levels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="white"); contour(Xc, Yc, mask_smb, add=TRUE, drawlabels=FALSE,lwd=0.5, col="darkgrey")})
-
-
 # Creation of ice front mask ###################################################
 
 i1 = which(mask_ice_all == 1, arr.ind=T)
 
 iceland = region_any(mask_ice_all)
 jpeg(file.path(outfldr,"Antarctica.jpeg"), width = 720, height = 720, quality=100)
-image(Xc, Yc, iceland); title("Contour Antarctica")
+image(Xc, Yc, iceland)
+title("Contour Antarctica")
 dev.off()
 jpeg(file.path(outfldr,"land.jpeg"), width = 720, height = 720, quality=100)
 landcontour = region_any(mask_ice_land)
-image(Xc, Yc, landcontour); title("Contour grounding land")
+image(Xc, Yc, landcontour)
+title("Contour grounding land")
 dev.off()
 jpeg(file.path(outfldr,"ice.jpeg"), width = 720, height = 720, quality=100)
 icecontour = region_any(mask_ice_ice)
-image(Xc, Yc, icecontour); title("Contour ice shelf")
+image(Xc, Yc, icecontour)
+title("Contour ice shelf")
 dev.off()
 jpeg(file.path(outfldr,"icefront.jpeg"), width = 720, height = 720, quality=100)
 icefront = region_any(mask_ice, 3)
-image(Xc, Yc, icefront); title("Contour icefront")
+image(Xc, Yc, icefront)
+title("Contour icefront")
 dev.off()
 
 
@@ -263,7 +194,7 @@ flux_gl_v_plot = apply(flux_gl_v, c(1,2), function(x) if (x==0) NA else x)
 df_gl = data.frame(row.names=index)
 for (i in 1:length(index)){
     df_gl[i,"groundline-racmo"] = sum(flux_gl_v*region_mask2[[i]]$ice)
-    df_gl[i,"groundline-bm"] = sum(flux_gl_v*region_mask[[i]]$ice)
+    df_gl[i,"groundline-bm"]    = sum(flux_gl_v*region_mask[[i]]$ice)
 }
 
 
