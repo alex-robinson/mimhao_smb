@@ -49,7 +49,7 @@ bmelt = BMELT_R13$bm_actual
 index = paste("region",seq(length.out=range(nasa_basin)[2]),sep="")
 df = data.frame(row.names=index)
 
-df[,"Area_bedmap"] = sapply(region_mask, function(x) x$area) 
+df[,"Area_bedmap"] = sapply(region_mask, function(x) x$area) #1st COLUMN OF THE df TABLE
 #df[,"Area_racmo"] = sapply(region_mask2, function(x) x$area)
 
 
@@ -57,13 +57,13 @@ df[,"Area_bedmap"] = sapply(region_mask, function(x) x$area)
 
 ## ajr: test calcs 
 
-smb_ann_era0 = apply(RACMO23_ERA_INTERIM_monthly_1981_2010$smb,c(1,2),mean)*365*1e-3
-
-smb_ann_had0 = apply(RACMO2_ANT3K55_HadCM3_A1B_monthly_2000_2010$smb,c(1,2),sum)*1e-3
-smb_ann_had1 = apply(RACMO2_ANT3K55_HadCM3_A1B_monthly_2001_2030$smb,c(1,2),sum)*1e-3
-smb_ann_had2 = apply(RACMO2_ANT3K55_HadCM3_A1B_monthly_2071_2100$smb,c(1,2),sum)*1e-3
-dsmb_ann_had1 = smb_ann_had1-smb_ann_had0
-dsmb_ann_had2 = smb_ann_had2-smb_ann_had0
+# smb_ann_era0 = apply(RACMO23_ERA_INTERIM_monthly_1981_2010$smb,c(1,2),mean)*365*1e-3
+# 
+# smb_ann_had0 = apply(RACMO2_ANT3K55_HadCM3_A1B_monthly_2000_2010$smb,c(1,2),sum)*1e-3
+# smb_ann_had1 = apply(RACMO2_ANT3K55_HadCM3_A1B_monthly_2001_2030$smb,c(1,2),sum)*1e-3
+# smb_ann_had2 = apply(RACMO2_ANT3K55_HadCM3_A1B_monthly_2071_2100$smb,c(1,2),sum)*1e-3
+# dsmb_ann_had1 = smb_ann_had1-smb_ann_had0
+# dsmb_ann_had2 = smb_ann_had2-smb_ann_had0
 
 # par(mfrow=c(1,3))
 # image.plot(Xc,Yc,smb_ann_era0)
@@ -99,16 +99,16 @@ SMB.year = lapply(SMB.month, function(x) apply(x,c(1,2),sum))
 for (i in 1:length(index)){
     smb_racmo = sum(smb_racmo.year*region_mask2[[i]]$ice*area)/1e12*365
     smb_racmo_bm = sum(smb_racmo.year*region_mask[[i]]$ice*area)/1e12*365
-    df[i,"SMB-RACMO23-racmo"] = smb_racmo
-    df[i,"SMB-RACMO23-bedmap"] = smb_racmo_bm
-    smb = sapply(SMB.year, function(x) sum(x*region_mask[[i]]$ice*area)/1e12)
-    df[i,"SMB-2000-2010"] = smb[1]
-    df[i,"dSMB-2001-2030"] = (smb[2] - smb[1])
-    df[i,"dSMB-2071-2100"] = (smb[3] - smb[1])
+    df[i,"SMB-RACMO23-racmo"] = smb_racmo #2nd COLUMN OF THE df TABLE
+    df[i,"SMB-RACMO23-bedmap"] = smb_racmo_bm #3rd COLUMN OF THE df TABLE
+    smb = sapply(SMB.year, function(x) sum(x*region_mask[[i]]$ice*area)/1e12) #As it comes from SMB.month, smb has 3 matrix inside too
+    df[i,"SMB-2000-2010"] = smb[1] #4rd COLUMN OF THE df TABLE (it is also the reference)
+    df[i,"dSMB-2001-2030"] = (smb[2] - smb[1]) #5th COLUMN OF THE df TABLE
+    df[i,"dSMB-2071-2100"] = (smb[3] - smb[1]) #6th COLUMN OF THE df TABLE
 }
 
 pdf(file.path(outfldr,"df_smb.pdf"), height=8, width=11.5)
-grid.table(round(df, digits = 2))
+grid.table(round(df, digits = 2)) #THE PDF FILE CONTAINS THE df TABLE
 dev.off()
 
 ## BMELT_13 #
@@ -139,24 +139,25 @@ colors = c('chocolate4', 'orange', 'lightblue4', 'lightskyblue', 'blue',
 
 ## Contour from TOPO BEDMAP2
 mask_plot2 = nasa_basin * mask_ice_all
-mask_plot2_unit = apply(mask_plot2, c(1, 2), function(x) if (x!=0) x/x else x)
+mask_plot2_unit = apply(mask_plot2, c(1, 2), function(x) if (x!=0) 1 else x)
 mask_plot2[mask_plot2==0] = NA
 
+## Plot of the topography of the Antarctica
 pdf(file.path(outfldr,"TOPO_BEDMAP2.pdf"))
-image(Xc, Yc, mask_plot2,col=NA)
+image(Xc, Yc, mask_plot2,col=NA) #first plot
 for (i in 1:27){
     #image(Xc, Yc, region_mask[[i]]$ice, add=TRUE, col=c(NA,colors[i]))
-    image(Xc, Yc, region_mask[[i]]$land+region_mask[[i]]$ice, add=TRUE, col=c(NA,colors[i]))
+    image(Xc, Yc, region_mask[[i]]$land+region_mask[[i]]$ice, add=TRUE, col=c(NA,colors[i])) #plot of each region (27)
     for (ii in seq(length=length(Xc))){
         for (ij in seq(length=length(Yc))){
             if (region_mask[[i]]$ice[ii,ij] != 0) {
-                points(Xc[ii], region_mask[[i]]$ice[ii,ij]*Yc[ij], pch = ".", cex = .1)
+                points(Xc[ii], region_mask[[i]]$ice[ii,ij]*Yc[ij], pch = ".", cex = .1) #ice shelves are points
             }
         }
     }
 }
-contour(Xc, Yc, mask_ice_land, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="red1")
-contour(Xc, Yc, mask_ice_all, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="black")
+contour(Xc, Yc, mask_ice_land, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="red1") #grounding line contour
+contour(Xc, Yc, mask_ice_all, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="black") #total contour
 title("Antarctica (TOPO BEDMAP2)")
 dev.off()
 
@@ -165,23 +166,23 @@ dev.off()
 
 i1 = which(mask_ice_all == 1, arr.ind=T)
 
-iceland = region_any(mask_ice_all)
+iceland = region_any(mask_ice_all) #iceland is the contour of any region with ice (floating or supported in the land)
 jpeg(file.path(outfldr,"Antarctica.jpeg"), width = 720, height = 720, quality=100)
 image(Xc, Yc, iceland)
 title("Contour Antarctica")
 dev.off()
 jpeg(file.path(outfldr,"land.jpeg"), width = 720, height = 720, quality=100)
-landcontour = region_any(mask_ice_land)
+landcontour = region_any(mask_ice_land) #landcontour is the contour of any region supported in land (so it's the region delimited by the grounding line)
 image(Xc, Yc, landcontour)
 title("Contour grounding land")
 dev.off()
 jpeg(file.path(outfldr,"ice.jpeg"), width = 720, height = 720, quality=100)
-icecontour = region_any(mask_ice_ice)
+icecontour = region_any(mask_ice_ice) #icecontour is the contour of any region with floating ice (so it's delimited by the ice selves)
 image(Xc, Yc, icecontour)
 title("Contour ice shelf")
 dev.off()
 jpeg(file.path(outfldr,"icefront.jpeg"), width = 720, height = 720, quality=100)
-icefront = region_any(mask_ice, 3)
+icefront = region_any(mask_ice, 3) #icefront is the contour of the coast where there is ice on it
 image(Xc, Yc, icefront)
 title("Contour icefront")
 dev.off()
@@ -196,7 +197,7 @@ dev.off()
 # 
 # }
 
-
+## Plot the velocity u and v of the grounding line with the sign of dS
 groundline = regions_uv(mask_ice_land)
 jpeg(file.path(outfldr,"mask_u.jpeg"), width = 720, height = 720, quality=100)
 image(Xc,Yc,groundline$u, col=c('blue', NA, 'red'))
