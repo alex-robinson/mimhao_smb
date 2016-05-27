@@ -257,18 +257,19 @@ df_gl[i,"groundline-bm"]  = sum(gl_total_flux[,,i])
   }
 
 ##flux_gl_u = -groundline$u * icelon * VEL_R11$u
-#flux_gl_u = (-groundline$u * 40e3 * VEL_R11$u * h /1e6) #CHANGED
-#flux_gl_v = (-groundline$v * 40e3 * VEL_R11$v * h /1e6) #CHANGED
-# flux_gl_v = ((-groundline$v * 40e3 * h + -groundline$v * 40e3 * h) /1e6)
-#flux_gl_v_plot = apply(flux_gl_v, c(1,2), function(x) if (x==0) NA else x) #CHANGED
-#image.plot(Xc,Yc, flux_gl_v_plot)
+flux_gl_u = (-groundline$u * 40e3 * VEL_R11$u * h *0.916/1e9) #CHANGED
+flux_gl_v = (-groundline$v * 40e3 * VEL_R11$v * h *0.916/1e9) #CHANGED
+#flux_gl_v = ((-groundline$v * 40e3 * h + -groundline$v * 40e3 * h) /1e6)
+flux_gl_v_plot = apply(flux_gl_v, c(1,2), function(x) if (x==0) NA else x) #CHANGED
+flux_gl_u_plot = apply(flux_gl_u, c(1,2), function(x) if (x==0) NA else x) #CHANGED
+image.plot(Xc,Yc, flux_gl_v_plot)
 
-#flux_gl = flux_gl_u + flux_gl_v   
-
+flux_gl = sum(flux_gl_u + flux_gl_v)   
+print(flux_gl)
 #df_gl = data.frame(row.names=index)
-#for (i in 1:length(index)){                                          #CHANGED
- #   df_gl[i,"groundline-bm"]    = sum(flux_gl*region_mask[[i]]$ice)  #CHANGED
-#}                                                                    #CHANGED
+for (i in 1:length(index)){                                          #CHANGED
+  df_gl[i,"groundline-bm"]    = sum((flux_gl_v+flux_gl_u)*region_mask[[i]]$land)  #CHANGED
+}                                                                    #CHANGED
 
 
 

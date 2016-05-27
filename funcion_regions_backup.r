@@ -68,7 +68,7 @@ regions_uv <- function(mask,vi=1,vo=0) #the value of the sea is 0 in mask_ice_la
   ## Return the mask of velocity u and v with the sign of dS
   mask_u <- array(0,dim(mask))
   mask_v <- array(0,dim(mask))
-  mask_2 <- apply(mask, c(1, 2), function(x) if (x==vo) vo else vi) #ORIGINAL WAS "vi else vo"
+  mask_2 <- apply(mask, c(1, 2), function(x) if (x==vo) vi else vo) #ORIGINAL WAS "vi else vo"
   for (i in 2:(dim(mask)[1]-1)){
     for (j in 2:(dim(mask)[2]-1)){
       #             if (mask[i,j] == vi){
