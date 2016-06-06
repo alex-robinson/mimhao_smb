@@ -13,7 +13,7 @@ outfldr = "output"
 # Get diferents masks ============================================
 
 ## Regions of NASA extended
-nasa_basin = BASINS_nasa$basin
+nasa_basin      = BASINS_nasa$basin
 ## Antarctica Mask from NASA (ice+land)
 nasa_basin_mask = BASINS_nasa$basin_mask
 
@@ -124,13 +124,13 @@ df_2 = data.frame(row.names=index)
 #Basal melt in m/year
 for (i in 1:length(index)){
     df_2[i,"bmelt(m/year)"] = sum((bmelt*region_mask[[i]]$ice)) #before it was 'mean' instead of 'sum'
-    df_2[i,"bss(m/year)"] = sum((bss*region_mask[[i]]$ice))
+    df_2[i,"bss(m/year)"]   = sum((bss*region_mask[[i]]$ice))
 }
 
 #Basal melt in Gt/year
 for (i in 1:length(index)){
   df_2[i,"bmelt(Gt/year)"] = sum((bmelt*region_mask[[i]]$ice*area*916.8/1e12))
-  df_2[i,"bss(Gt/year)"] = sum((bss*region_mask[[i]]$ice*area*916.8/1e12))
+  df_2[i,"bss(Gt/year)"]   = sum((bss*region_mask[[i]]$ice*area*916.8/1e12))
   # df_2[i,"bmelt(Gt/year)"] = df_2[i,"bmelt(m/year)"] * df[i,"Area_bedmap"] *916.8*1e6/1e12
   # df_2[i,"bss(Gt/year)"] = df_2[i,"bss(m/year)"] * df[i,"Area_bedmap"] *916.8*1e6/1e12
 }
@@ -229,21 +229,21 @@ dev.off()
 h = TOPO_BEDMAP2$H
 
 #NEW : GL FLUX (REGION BY REGION)
-gl_flux <- array(0,c(141,141, length(index)))
-gl_flux_u <- array(0,c(141,141, length(index)))
-gl_flux_v <- array(0,c(141,141, length(index)))
-gl_total_flux <- array(0,c(141,141, length(index)))
+gl_flux <- array(0,c(dim(h), length(index)))
+gl_flux_u <- array(0,c(dim(h), length(index)))
+gl_flux_v <- array(0,c(dim(h), length(index)))
+gl_total_flux <- array(0,c(dim(h), length(index)))
 
 #Loop to get the grounding line flux 
 for (i in 1:length(index)){
 #Ice density at 0ºC is (aproximately) ---------------------------------------------> 916,8 kg/m³
-gl_flux_u[,,i] <- groundline$u * landcontour * region_mask[[i]]$land * 40e3 *VEL_R11$u * h * 916.8 /1e12 #Gt/year
-gl_flux_v[,,i] <- groundline$v * landcontour * region_mask[[i]]$land * 40e3 *VEL_R11$v * h * 916.8 /1e12 #Gt/year
+gl_flux_u[,,i] <- -groundline$u * landcontour * region_mask[[i]]$land * dxdy *VEL_R11$u * h * 916.8 /1e12 #Gt/year
+gl_flux_v[,,i] <- -groundline$v * landcontour * region_mask[[i]]$land * dxdy *VEL_R11$v * h * 916.8 /1e12 #Gt/year
 #I have to fix this part of the loop...
 #gl_flux_u_plot[,,i] = apply(gl_flux_u[,,i], MARGIN=c(1,2,i) , FUN=function(x) if (x==0) NA else x)
 #gl_flux_v_plot[,,i] = apply(gl_flux_v[,,i], MARGIN=c(1,2,i) ,FUN=function(x) if (x==0) NA else x)
-#gl_flux_u = (gl_flux[1:141,1:141,i]$u * 40e3 * VEL_R11$u * h /1e6)
-#gl_flux_v = (gl_flux[1:141,1:141,i]$u * 40e3 * VEL_R11$u * h /1e6)
+#gl_flux_u = (gl_flux[1:141,1:141,i]$u * dxdy * VEL_R11$u * h /1e6)
+#gl_flux_v = (gl_flux[1:141,1:141,i]$u * dxdy * VEL_R11$u * h /1e6)
 gl_total_flux[,,i] <- gl_flux_u[,,i]+gl_flux_v[,,i]
 }
 
@@ -257,11 +257,11 @@ df_gl[i,"groundline-bm"]  = sum(gl_total_flux[,,i])
   }
 
 ##flux_gl_u = -groundline$u * icelon * VEL_R11$u
-flux_gl_u = (-groundline$u * 40e3 * VEL_R11$u * h *0.916/1e9) #CHANGED
-flux_gl_v = (-groundline$v * 40e3 * VEL_R11$v * h *0.916/1e9) #CHANGED
-#flux_gl_v = ((-groundline$v * 40e3 * h + -groundline$v * 40e3 * h) /1e6)
-flux_gl_v_plot = apply(flux_gl_v, c(1,2), function(x) if (x==0) NA else x) #CHANGED
+flux_gl_u = (-groundline$u * VEL_R11$u * dxdy * h *0.916/1e9) #CHANGED
+flux_gl_v = (-groundline$v * VEL_R11$v * dxdy * h *0.916/1e9) #CHANGED
+#flux_gl_v = ((-groundline$v * dxdy * h + -groundline$v * dxdy * h) /1e6)
 flux_gl_u_plot = apply(flux_gl_u, c(1,2), function(x) if (x==0) NA else x) #CHANGED
+flux_gl_v_plot = apply(flux_gl_v, c(1,2), function(x) if (x==0) NA else x) #CHANGED
 image.plot(Xc,Yc, flux_gl_v_plot)
 
 flux_gl = sum(flux_gl_u + flux_gl_v)   
@@ -271,6 +271,10 @@ for (i in 1:length(index)){                                          #CHANGED
   df_gl[i,"groundline-bm"]    = sum((flux_gl_v+flux_gl_u)*region_mask[[i]]$land)  #CHANGED
 }                                                                    #CHANGED
 
+gl_tot = apply(gl_total_flux,c(1,2),sum)
+gl_tot[gl_tot==0] = NA 
+gl_tot1 = flux_gl_u + flux_gl_v
+gl_tot1[gl_tot1==0] = NA 
 
 
 # ## Plot the calving velocity uc and vc
@@ -287,27 +291,27 @@ title("calving v with sign dS")
 dev.off()
 
 #NEW: IF FLUX (REGION BY REGION)
-if_flux <- array(0,c(141,141, length(index)))
-if_flux_u <- array(0,c(141,141, length(index)))
-if_flux_v <- array(0,c(141,141, length(index)))
-if_total_flux <- array(0,c(141,141, length(index)))
+if_flux <- array(0,c(dim(h), length(index)))
+if_flux_u <- array(0,c(dim(h), length(index)))
+if_flux_v <- array(0,c(dim(h), length(index)))
+if_total_flux <- array(0,c(dim(h), length(index)))
 
 
 #Loop to get the grounding line flux 
 for (i in 1:length(index)){
 #Ice density at 0ºC is (aproximately) ---------------------------------------------> 916,8 kg/m³
-if_flux_u[,,i] <- calving$u * icecontour * region_mask[[i]]$ice * 40e3 *VEL_R11$u * h * 916.8 /1e12 #Gt/year
-if_flux_v[,,i] <- calving$v * icecontour * region_mask[[i]]$ice * 40e3 *VEL_R11$v * h * 916.8 /1e12 #Gt/year
+if_flux_u[,,i] <- calving$u * icecontour * region_mask[[i]]$ice * dxdy *VEL_R11$u * h * 916.8 /1e12 #Gt/year
+if_flux_v[,,i] <- calving$v * icecontour * region_mask[[i]]$ice * dxdy *VEL_R11$v * h * 916.8 /1e12 #Gt/year
 #I have to fix this part of the loop...
 #if_flux_u_plot[,,i] = apply(gl_flux_u[,,i], MARGIN=c(1,2,i) , FUN=function(x) if (x==0) NA else x)
 #if_flux_v_plot[,,i] = apply(gl_flux_v[,,i], MARGIN=c(1,2,i) ,FUN=function(x) if (x==0) NA else x)
-#if_flux_u = (if_flux[1:141,1:141,i]$u * 40e3 * VEL_R11$u * h /1e6)
-#if_flux_v = (if_flux[1:141,1:141,i]$u * 40e3 * VEL_R11$u * h /1e6)
+#if_flux_u = (if_flux[1:141,1:141,i]$u * dxdy * VEL_R11$u * h /1e6)
+#if_flux_v = (if_flux[1:141,1:141,i]$u * dxdy * VEL_R11$u * h /1e6)
 if_total_flux[,,i] <- if_flux_u[,,i]+if_flux_v[,,i] #Total ice-front flux is the total lost in u and v directions
 }
 
 
-if_gl = data.frame(row.names=index)
+df_if = data.frame(row.names=index)
 for (i in 1:length(index)){
   df_if[i,"icefront"]  = sum(if_total_flux[,,i])
 }
