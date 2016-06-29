@@ -85,7 +85,8 @@ flux_gl[flux_gl==0]=NA
 xlim=c(-620,220)
 ylim=c(-1500,-350)
 
-image(Xc,Yc,mask,col=c("white","grey60","grey80"),xlim=xlim,ylim=ylim)
+
+image(Xc,Yc,mask,col=c("white","grey60","grey80")) #,xlim=xlim,ylim=ylim)
 image(Xc,Yc,flux_gl,add=TRUE,col=c("blue","red"),levels=c(-1e5,0,1e5))
 
 H0 = H 
