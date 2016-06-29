@@ -48,8 +48,8 @@ region_any <- function(mask, vi=1, vo=0)
     # vi : value of ice shelf to compare 
     # vo : value of ocean to compare 
     mask_any <- array(0,dim(mask))
-    for (i in 2:dim(mask)[1]){
-        for (j in 2:dim(mask)[2]){
+    for (i in 2:(dim(mask)[1]-1)){
+        for (j in 2:(dim(mask)[2]-1)){
             if (mask[i,j] == vi){
                 if (mask[i+1,j]==vo | mask[i-1,j]==vo | 
                         mask[i,j+1]==vo | mask[i,j-1]==vo){
