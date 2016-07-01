@@ -3,12 +3,12 @@
 source('load_data.r')
 
 # Load dependencies 
-source('function_regions.r')
+source('~/TFM/mimhao_smb/function_regions.r')
 library(gridExtra)
 library(fields)
 
 # Define the output folder 
-outfldr = "output" 
+outfldr = "~/TFM/mimhao_smb/output" 
 
 # Get diferents masks ============================================
 

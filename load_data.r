@@ -2,10 +2,10 @@
 library(RNetCDF)
 
 # Define grid name 
-gridname = "ANT-20KM"
+gridname = "ANT-40KM"
 
 # Define the input data folder 
-data_fldr = file.path("data",gridname)
+data_fldr = file.path("./data",gridname)
 
 # Determine filenames of all data files
 files = list.files(data_fldr)
@@ -25,7 +25,7 @@ for (i in 1:length(dat_names)) {
 }
 
 # Clean up some variables 
-if (gridname=="ANT-20KM") {
+if (gridname=="ANT-40KM") {
     TOPO_BEDMAP2$mask[TOPO_BEDMAP2$mask==1] = 3 
     TOPO_BEDMAP2$mask_ice = TOPO_BEDMAP2$mask 
 }
