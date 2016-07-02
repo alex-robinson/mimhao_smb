@@ -6,6 +6,7 @@ source('load_data.r')
 source('~/TFM/mimhao_smb/function_regions.r')
 library(gridExtra)
 library(fields)
+library(openxlsx) #To read xlsx files
 
 # Define the output folder 
 outfldr = "~/TFM/mimhao_smb/output" 
@@ -93,24 +94,33 @@ smb_racmo.year = apply(smb_racmo.month,c(1,2),mean) #as RACMO23 is accumulative 
 
 SMB.month = list(RACMO2_ANT3K55_HadCM3_A1B_monthly_2000_2010$smb,
             RACMO2_ANT3K55_HadCM3_A1B_monthly_2001_2030$smb, 
-            RACMO2_ANT3K55_HadCM3_A1B_monthly_2071_2100$smb)
+            RACMO2_ANT3K55_HadCM3_A1B_monthly_2071_2100$smb) #I don't use this
 
-SMB.year = lapply(SMB.month, function(x) apply(x,c(1,2),mean))
+SMB.year = lapply(SMB.month, function(x) apply(x,c(1,2),mean)) #I don't use this
+
+smb_racmo_2000_2010 = RACMO2_ANT3K55_HadCM3_A1B_monthly_2000_2010$smb
+smb_racmo_2001_2030 = RACMO2_ANT3K55_HadCM3_A1B_monthly_2001_2030$smb
+smb_racmo_2071_2100 = RACMO2_ANT3K55_HadCM3_A1B_monthly_2071_2100$smb
+
+SMB.year_2000_2010=apply(smb_racmo_2000_2010,c(1,2),mean)
+SMB.year_2001_2030=apply(smb_racmo_2001_2030,c(1,2),mean)
+SMB.year_2071_2100=apply(smb_racmo_2071_2100,c(1,2),mean)
+
 
 #SMB.year = lapply(SMB.month,sum)
 #SMB.year = apply(RACMO2_ANT3K55_HadCM3_A1B_monthly_2000_2010$smb,c(1,2), sum)
 
 
-
 for (i in 1:length(index)){
     smb_racmo_bm = sum(smb_racmo.year*region_mask[[i]]$ice*area)/1e12*365
-    df[i,"SMB-1981-2010"] = smb_racmo_bm #2nd COLUMN OF THE df TABLE (real data from reanalysis) #NOT USEFUL
-    smb = sapply(smb_racmo_bm, function(x) sum(x*region_mask[[i]]$ice*area)/1e12 * 365) #As it comes from SMB.month, smb has 3 matrix inside too
+    df[i,"SMB-1981-2010"] = smb_racmo_bm #2nd COLUMN OF THE df TABLE (real data from reanalysis)
+    smb1 = sum(SMB.year_2000_2010*region_mask[[i]]$ice*area)/1e12*365 #As it comes from SMB.month, smb has 3 matrix inside too
+    smb2 = sum(SMB.year_2001_2030*region_mask[[i]]$ice*area)/1e12*365
+    smb3 = sum(SMB.year_2071_2100*region_mask[[i]]$ice*area)/1e12*365
     #smb = sapply(SMB.year, function(x) sum(region_mask[[i]]$ice*area)/10**6) 
-    #df[i,"SMB-A1B-2000-2010"] = smb[1] #3rd COLUMN OF THE df TABLE (it is the reference for the A1B scenario simulation)
-    #df[i,"SMB-A1B-2000-2010"] = smb#[1] #3rd COLUMN OF THE df TABLE (it is the reference for the A1B scenario simulation)
-    # df[i,"dSMB-A1B-2001-2030"] = (smb[2] - smb[1]) #4th COLUMN OF THE df TABLE #NOT USEFUL
-    # df[i,"dSMB-A1B-2071-2100"] = (smb[3] - smb[1]) #5th COLUMN OF THE df TABLE #NOT USEFUL
+    df[i,"SMB-A1B-2000-2010"] = smb1 #3rd COLUMN OF THE df TABLE (it is the reference for the A1B scenario simulation)
+    df[i,"dSMB-A1B-2001-2030"] = (smb2 - smb1) #4th COLUMN OF THE df TABLE
+    df[i,"dSMB-A1B-2071-2100"] = (smb3 - smb1) #5th COLUMN OF THE df TABLE
 }
 
 pdf(file.path(outfldr,"df_smb.pdf"), height=8, width=11.5)
@@ -382,3 +392,66 @@ comparation=FALSE
 if (comparation==TRUE){
     source('contour_check.r')
 }
+
+#..............NEW REGIONS...............#
+
+#Results of Rignot's paper are saved in 'new':
+new=read.xlsx("data/rignot_new.xlsx",sheet = 1, rows=c(1:24))
+
+#Now, I'll do a definitive data frame (called 'def') with 'new' data plus our smb anomalies.
+def = data.frame(Name=new$Name,'Area.Rignot Km2'=new$Area.Rignot,'GL Gt/year'=new$GL,'IF Gt/year'=new$IF,'SMB Gt/year'=new$SMB,'dH/dt Gt/year'=new$dHdt,'Bss Gt/year'=new$BSS,'BM Gt/year'=new$BM,
+                 'GL.err Gt/year'=new$GL.err,'IF.err Gt/year'=new$IF.err,'SMB.err Gt/year'=new$SMB.err,'dH/dt.err Gt/year'=new$dHdt.err,'BSS.err Gt/year'=new$BSS.err,'BM.err Gt/year'=new$BM.err,
+                 'Area.NASA Km2'=NA,'SMB-1981-2010 Gt/year'=NA, 'SMB-A1B-2000-2010 Gt/year'=NA, 'dSMB-A1B-2001-2030 Gt/year'=NA, 'dSMB-A1B-2071-2100 Gt/year'=NA)
+
+#Area.NASA (obtained from 'Area_bedmap' column in df):
+def[[15]][1]=df[[1]][1]
+def[[15]][2]=df[[1]][2]+df[[1]][3]
+for (s in 3:7)
+{
+  def[[15]][s]=df[[1]][s+1]
+}
+def[[15]][8]=df[[1]][9]+df[[1]][10]+df[[1]][11]
+for (s in 9:14)
+{
+  def[[15]][s]=df[[1]][s+3]
+}
+def[[15]][15]=df[[1]][18]+df[[1]][19]
+for (s in 16:21)
+{
+  def[[15]][s]=df[[1]][s+4]
+}
+def[[15]][22]=df[[1]][26]+df[[1]][27]
+def[[15]][23]=sum(df[1])
+
+#The rest of the data in the data frame 'def' consists of the different 'smb' and 'dsmb' projections: 
+for (r in 2:5)  #r gives the different columns of the data frame
+{
+  def[[r+14]][1]=df[[r]][1]/df[[1]][1]*def[[2]][1] #I divide by NASA's area and multiply by Rignot's area
+  def[[r+14]][2]=(df[[r]][2]+df[[r]][3])/(df[[1]][2]+df[[1]][3])*def[[2]][2]
+  for (s in 3:7)
+  {
+    def[[r+14]][s]=df[[r]][s+1]/df[[1]][s+1]*def[[2]][s]
+  }
+  def[[r+14]][8]=(df[[r]][9]+df[[r]][10]+df[[r]][11])/(df[[1]][9]+df[[1]][10]+df[[1]][11])*def[[2]][8]
+  for (s in 9:14)
+  {
+    def[[r+14]][s]=df[[r]][s+3]/df[[1]][s+3]*def[[2]][s]
+  }
+  def[[r+14]][15]=(df[[r]][18]+df[[r]][19])/(df[[1]][18]+df[[1]][19])*def[[2]][15]
+  for (s in 16:21)
+  {
+    def[[r+14]][s]=df[[r]][s+4]/df[[1]][s+4]*def[[2]][s]
+  }
+  def[[r+14]][22]=(df[[r]][26]+df[[r]][27])/(df[[1]][26]+df[[1]][27])*def[[2]][22]
+  def[[r+14]][23]=sum(def[r+13])
+  
+}#There are 22 'super regions'
+
+#Save the definitive table to an xlsx file
+write.xlsx(def, "output/definitive.xlsx")
+#Save the definitive table to a pdf file
+pdf(file.path(outfldr,"definitive_table.pdf"),height=10, width=40)
+grid.table(def)
+dev.off()
+
+
