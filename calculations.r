@@ -114,9 +114,9 @@ SMB.year_2071_2100=apply(smb_racmo_2071_2100,c(1,2),mean)
 for (i in 1:length(index)){
     smb_racmo_bm = sum(smb_racmo.year*region_mask[[i]]$ice*area)/1e12*365
     df[i,"SMB-1981-2010"] = smb_racmo_bm #2nd COLUMN OF THE df TABLE (real data from reanalysis)
-    smb1 = sum(SMB.year_2000_2010*region_mask[[i]]$ice*area)/1e12*365 #As it comes from SMB.month, smb has 3 matrix inside too
-    smb2 = sum(SMB.year_2001_2030*region_mask[[i]]$ice*area)/1e12*365
-    smb3 = sum(SMB.year_2071_2100*region_mask[[i]]$ice*area)/1e12*365
+    smb1 = sum(SMB.year_2000_2010*region_mask[[i]]$ice*area)/1e12*12 #As it comes from SMB.month, smb has 3 matrix inside too
+    smb2 = sum(SMB.year_2001_2030*region_mask[[i]]$ice*area)/1e12*12
+    smb3 = sum(SMB.year_2071_2100*region_mask[[i]]$ice*area)/1e12*12
     #smb = sapply(SMB.year, function(x) sum(region_mask[[i]]$ice*area)/10**6) 
     df[i,"SMB-A1B-2000-2010"] = smb1 #3rd COLUMN OF THE df TABLE (it is the reference for the A1B scenario simulation)
     df[i,"dSMB-A1B-2001-2030"] = (smb2 - smb1) #4th COLUMN OF THE df TABLE
@@ -421,7 +421,7 @@ for (s in 16:21)
   def[[15]][s]=df[[1]][s+4]
 }
 def[[15]][22]=df[[1]][26]+df[[1]][27]
-def[[15]][23]=sum(df[1])
+def[[15]][23]=sum(df[1], na.rm = TRUE)
 
 #The rest of the data in the data frame 'def' consists of the different 'smb' and 'dsmb' projections: 
 for (r in 2:5)  #r gives the different columns of the data frame
@@ -443,7 +443,7 @@ for (r in 2:5)  #r gives the different columns of the data frame
     def[[r+14]][s]=df[[r]][s+4]/df[[1]][s+4]*def[[2]][s]
   }
   def[[r+14]][22]=(df[[r]][26]+df[[r]][27])/(df[[1]][26]+df[[1]][27])*def[[2]][22]
-  def[[r+14]][23]=sum(def[r+13])
+  def[[r+14]][23]=sum(def[r+13], na.rm = TRUE)
   
 }#There are 22 'super regions'
 
@@ -452,6 +452,109 @@ write.xlsx(def, "output/definitive.xlsx")
 #Save the definitive table to a pdf file
 pdf(file.path(outfldr,"definitive_table.pdf"),height=10, width=40)
 grid.table(def)
+dev.off()
+
+
+#..........MAPS WITH THE RESULTS..........#
+
+#First, I make the new masks for the new regions
+
+#LAND
+
+super_region_mask = region.mask(land=mask_ice_land, ice=mask_ice_ice)
+
+    super_region_mask[[1]]$land=region_mask[[1]]$land
+    super_region_mask[[2]]$land=region_mask[[2]]$land+region_mask[[3]]$land
+    for (s in 3:7)
+    {
+      super_region_mask[[s]]$land=region_mask[[s+1]]$land
+    }
+    super_region_mask[[8]]$land=region_mask[[9]]$land+region_mask[[10]]$land+region_mask[[11]]$land
+    for (s in 9:14)
+    {
+      super_region_mask[[s]]$land=region_mask[[s+3]]$land
+    }
+    super_region_mask[[15]]$land=region_mask[[18]]$land+region_mask[[19]]$land
+    for (s in 16:21)
+    {
+      super_region_mask[[s]]$land=region_mask[[s+4]]$land
+    }
+    super_region_mask[[22]]$land=region_mask[[26]]$land+region_mask[[27]]$land
+    
+    
+#ICE
+    
+    super_region_mask[[1]]$ice=region_mask[[1]]$ice
+    super_region_mask[[2]]$ice=region_mask[[2]]$ice+region_mask[[3]]$ice
+    for (s in 3:7)
+    {
+      super_region_mask[[s]]$ice=region_mask[[s+1]]$ice
+    }
+    super_region_mask[[8]]$ice=region_mask[[9]]$ice+region_mask[[10]]$ice+region_mask[[11]]$ice
+    for (s in 9:14)
+    {
+      super_region_mask[[s]]$ice=region_mask[[s+3]]$ice
+    }
+    super_region_mask[[15]]$ice=region_mask[[18]]$ice+region_mask[[19]]$ice
+    for (s in 16:21)
+    {
+      super_region_mask[[s]]$ice=region_mask[[s+4]]$ice
+    }
+    super_region_mask[[22]]$ice=region_mask[[26]]$ice+region_mask[[27]]$ice
+    
+    supercolors = c('chocolate4', 'lightblue4', 'lightskyblue', 'blue', 
+               'mediumspringgreen', 'firebrick4', 'gold', 
+               'sandybrown', 'darkgoldenrod', 'gray80', 'seagreen', 
+               'pink3', 'khaki1', 'darkred', 'magenta', 'lightsteelblue', 
+               'mediumblue', 'lightsalmon', 'aquamarine', 'yellow2', 'cadetblue1', 
+               'darkorange')
+
+# (The problem is that as I defined the super_region_mask frame using the region_mask
+#    frame, I have 22 super-regions and other 5 "false super-regions")   
+    
+    
+pdf(file.path(outfldr,"NEW_REGIONS.pdf"))
+image(Xc, Yc, mask_plot2,col=NA) #first plot
+  for (i in 1:22){
+  image(Xc, Yc, super_region_mask[[i]]$ice + super_region_mask[[i]]$land, add=TRUE, col=c(NA,supercolors[i]))
+  for (ii in seq(length=length(Xc))){
+    for (ij in seq(length=length(Yc))){
+      if (super_region_mask[[i]]$ice[ii,ij] != 0) {
+        points(Xc[ii], Yc[ij], pch = ".", cex = .1) #ice shelves are points
+      }
+    }
+  } 
+}
+
+contour(Xc, Yc, mask_ice_land, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="red1") #grounding line contour
+contour(Xc, Yc, mask_ice_all, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="black") #total contour
+title("Antarctica NEW regions")
+dev.off()
+
+
+#MAPS OF SMB (ALL ANTARCTICA)
+image.plot(smb_racmo.year) #Reanalysis data
+image.plot(SMB.year_2000_2010)
+image.plot(SMB.year_2001_2030 - SMB.year_2000_2010)
+image.plot(SMB.year_2071_2100 - SMB.year_2000_2010)
+
+
+#MAPS OF SMB (BY REGIONS)
+
+def[[16]][1:22] #This are the different values to plot in the map
+                #I don't take all the column [[16]] because the 23th value is the TOTAL
+
+#SMB_1981-2010 (reanalysis)
+pdf(file.path(outfldr,"SMB_1981-2010.pdf"))
+image(Xc, Yc, mask_plot2,col=NA) #first plot
+for (i in 1:22){
+  image(Xc, Yc, super_region_mask[[i]]$ice + super_region_mask[[i]]$land, add=TRUE, col=NA)
+  #image.plot() #Plot here the values of smb
+  contour(Xc, Yc, super_region_mask[[i]]$ice, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="black") #grounding line contour
+}
+
+contour(Xc, Yc, mask_ice_all, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="black") #total contour
+title("Antarctica NEW regions")
 dev.off()
 
 
