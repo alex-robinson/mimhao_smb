@@ -1,15 +1,15 @@
 
 # First, make sure to load the data using:
-source('load_data.r')
+if (!exists("data_loaded")) source('load_data.r')
 
 # Load dependencies 
-source('~/TFM/mimhao_smb/function_regions.r')
+source('function_regions.r')
 library(gridExtra)
 library(fields)
 library(openxlsx) #To read xlsx files
 
 # Define the output folder 
-outfldr = "~/TFM/mimhao_smb/output" 
+outfldr = "output" 
 
 # Get diferents masks ============================================
 
@@ -17,6 +17,9 @@ outfldr = "~/TFM/mimhao_smb/output"
 nasa_basin      = BASINS_nasa$basin
 ## Antarctica Mask from NASA (ice+land)
 nasa_basin_mask = BASINS_nasa$basin_mask
+
+nasa_basin0 = nasa_basin 
+nasa_basin0[nasa_basin_mask==0] = NA 
 
 ## Ice and land mask from TOPO BEDMAP2
 mask_ice = TOPO_BEDMAP2$mask_ice
@@ -447,6 +450,9 @@ for (r in 2:5)  #r gives the different columns of the data frame
   
 }#There are 22 'super regions'
 
+# Delete region with no area according to our mask
+def = def[c(1:6,8:23),]
+
 #Save the definitive table to an xlsx file
 write.xlsx(def, "output/definitive.xlsx")
 #Save the definitive table to a pdf file
@@ -455,106 +461,25 @@ grid.table(def)
 dev.off()
 
 
-#..........MAPS WITH THE RESULTS..........#
+# Define mask corresponding to super regions 
+mask_super = nasa_basin*mask_ice_ice 
+mask_super[nasa_basin %in% c(1,2)]   = 1 
+mask_super[nasa_basin %in% c(3,4,5)] = 2 
 
-#First, I make the new masks for the new regions
+# TO DO ### 
 
-#LAND
+mask_super[mask_ice!=3] = NA 
 
-super_region_mask = region.mask(land=mask_ice_land, ice=mask_ice_ice)
 
-    super_region_mask[[1]]$land=region_mask[[1]]$land
-    super_region_mask[[2]]$land=region_mask[[2]]$land+region_mask[[3]]$land
-    for (s in 3:7)
-    {
-      super_region_mask[[s]]$land=region_mask[[s+1]]$land
-    }
-    super_region_mask[[8]]$land=region_mask[[9]]$land+region_mask[[10]]$land+region_mask[[11]]$land
-    for (s in 9:14)
-    {
-      super_region_mask[[s]]$land=region_mask[[s+3]]$land
-    }
-    super_region_mask[[15]]$land=region_mask[[18]]$land+region_mask[[19]]$land
-    for (s in 16:21)
-    {
-      super_region_mask[[s]]$land=region_mask[[s+4]]$land
-    }
-    super_region_mask[[22]]$land=region_mask[[26]]$land+region_mask[[27]]$land
-    
-    
-#ICE
-    
-    super_region_mask[[1]]$ice=region_mask[[1]]$ice
-    super_region_mask[[2]]$ice=region_mask[[2]]$ice+region_mask[[3]]$ice
-    for (s in 3:7)
-    {
-      super_region_mask[[s]]$ice=region_mask[[s+1]]$ice
-    }
-    super_region_mask[[8]]$ice=region_mask[[9]]$ice+region_mask[[10]]$ice+region_mask[[11]]$ice
-    for (s in 9:14)
-    {
-      super_region_mask[[s]]$ice=region_mask[[s+3]]$ice
-    }
-    super_region_mask[[15]]$ice=region_mask[[18]]$ice+region_mask[[19]]$ice
-    for (s in 16:21)
-    {
-      super_region_mask[[s]]$ice=region_mask[[s+4]]$ice
-    }
-    super_region_mask[[22]]$ice=region_mask[[26]]$ice+region_mask[[27]]$ice
-    
-    supercolors = c('chocolate4', 'lightblue4', 'lightskyblue', 'blue', 
-               'mediumspringgreen', 'firebrick4', 'gold', 
-               'sandybrown', 'darkgoldenrod', 'gray80', 'seagreen', 
-               'pink3', 'khaki1', 'darkred', 'magenta', 'lightsteelblue', 
-               'mediumblue', 'lightsalmon', 'aquamarine', 'yellow2', 'cadetblue1', 
-               'darkorange')
+n_reg = max(mask_super,na.rm=TRUE) 
 
-# (The problem is that as I defined the super_region_mask frame using the region_mask
-#    frame, I have 22 super-regions and other 5 "false super-regions")   
-    
-    
-pdf(file.path(outfldr,"NEW_REGIONS.pdf"))
-image(Xc, Yc, mask_plot2,col=NA) #first plot
-  for (i in 1:22){
-  image(Xc, Yc, super_region_mask[[i]]$ice + super_region_mask[[i]]$land, add=TRUE, col=c(NA,supercolors[i]))
-  for (ii in seq(length=length(Xc))){
-    for (ij in seq(length=length(Yc))){
-      if (super_region_mask[[i]]$ice[ii,ij] != 0) {
-        points(Xc[ii], Yc[ij], pch = ".", cex = .1) #ice shelves are points
-      }
-    }
-  } 
+map_gl = mask_super*NA 
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_gl[kk] = as.numeric(def$GL.Gt.year[q])
+
+  ## TO DO ##
 }
 
-contour(Xc, Yc, mask_ice_land, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="red1") #grounding line contour
-contour(Xc, Yc, mask_ice_all, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="black") #total contour
-title("Antarctica NEW regions")
-dev.off()
-
-
-#MAPS OF SMB (ALL ANTARCTICA)
-image.plot(smb_racmo.year) #Reanalysis data
-image.plot(SMB.year_2000_2010)
-image.plot(SMB.year_2001_2030 - SMB.year_2000_2010)
-image.plot(SMB.year_2071_2100 - SMB.year_2000_2010)
-
-
-#MAPS OF SMB (BY REGIONS)
-
-def[[16]][1:22] #This are the different values to plot in the map
-                #I don't take all the column [[16]] because the 23th value is the TOTAL
-
-#SMB_1981-2010 (reanalysis)
-pdf(file.path(outfldr,"SMB_1981-2010.pdf"))
-image(Xc, Yc, mask_plot2,col=NA) #first plot
-for (i in 1:22){
-  image(Xc, Yc, super_region_mask[[i]]$ice + super_region_mask[[i]]$land, add=TRUE, col=NA)
-  #image.plot() #Plot here the values of smb
-  contour(Xc, Yc, super_region_mask[[i]]$ice, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="black") #grounding line contour
-}
-
-contour(Xc, Yc, mask_ice_all, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="black") #total contour
-title("Antarctica NEW regions")
-dev.off()
 
 
