@@ -424,7 +424,7 @@ for (s in 16:21)
   def[[15]][s]=df[[1]][s+4]
 }
 def[[15]][22]=df[[1]][26]+df[[1]][27]
-def[[15]][23]=sum(df[1], na.rm = TRUE)
+def[[15]][23]=sum(def[[15]][1:22], na.rm = TRUE)
 
 #The rest of the data in the data frame 'def' consists of the different 'smb' and 'dsmb' projections: 
 for (r in 2:5)  #r gives the different columns of the data frame
@@ -446,7 +446,7 @@ for (r in 2:5)  #r gives the different columns of the data frame
     def[[r+14]][s]=df[[r]][s+4]/df[[1]][s+4]*def[[2]][s]
   }
   def[[r+14]][22]=(df[[r]][26]+df[[r]][27])/(df[[1]][26]+df[[1]][27])*def[[2]][22]
-  def[[r+14]][23]=sum(def[r+13], na.rm = TRUE)
+  def[[r+14]][23]=sum(def[[r+14]][1:22], na.rm = TRUE)
   
 }#There are 22 'super regions'
 
@@ -463,23 +463,85 @@ dev.off()
 
 # Define mask corresponding to super regions 
 mask_super = nasa_basin*mask_ice_ice 
-mask_super[nasa_basin %in% c(1,2)]   = 1 
-mask_super[nasa_basin %in% c(3,4,5)] = 2 
+mask_super[nasa_basin %in% c(1)]   = 1
+mask_super[nasa_basin %in% c(2,3)] = 2
+mask_super[nasa_basin %in% c(4)]   = 3 
+mask_super[nasa_basin %in% c(5)]   = 4 
+mask_super[nasa_basin %in% c(6)]   = 5 
+mask_super[nasa_basin %in% c(7)]   = 6 
+mask_super[nasa_basin %in% c(8)]   = 7 
+mask_super[nasa_basin %in% c(9,10,11)] = 8
+mask_super[nasa_basin %in% c(12)] = 9
+mask_super[nasa_basin %in% c(13)] = 10
+mask_super[nasa_basin %in% c(14)] = 11
+mask_super[nasa_basin %in% c(15)] = 12
+mask_super[nasa_basin %in% c(16)] = 13
+mask_super[nasa_basin %in% c(17)] = 14
+mask_super[nasa_basin %in% c(18+19)] = 15
+mask_super[nasa_basin %in% c(20)] = 16
+mask_super[nasa_basin %in% c(21)] = 17
+mask_super[nasa_basin %in% c(22)] = 18
+mask_super[nasa_basin %in% c(23)] = 19
+mask_super[nasa_basin %in% c(24)] = 20
+mask_super[nasa_basin %in% c(25)] = 21
+mask_super[nasa_basin %in% c(26,27)] = 22
 
-# TO DO ### 
 
-mask_super[mask_ice!=3] = NA 
+mask_super[mask_ice!=3] = NA #To only plot ice
 
 
-n_reg = max(mask_super,na.rm=TRUE) 
+n_reg = max(mask_super,na.rm=TRUE)-1 #There are only 21 regions with all data
 
-map_gl = mask_super*NA 
+map_gl = mask_super*NA
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
-  map_gl[kk] = as.numeric(def$GL.Gt.year[q])
-
-  ## TO DO ##
+  map_gl[kk] = def$GL.Gt.year[q]
 }
 
+map_if = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_if[kk] = def$IF.Gt.year[q]
+}
 
+map_smb = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_smb[kk] = def$SMB.Gt.year[q]
+}
 
+map_bm = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_bm[kk] = def$BM.Gt.year[q]
+}
+
+map_smb_81_10 = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_smb_81_10[kk] = def$SMB.1981.2010.Gt.year[q]
+}
+
+map_smb_00_10 = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_smb_00_10[kk] = def$SMB.A1B.2000.2010.Gt.year[q]
+}
+
+map_dsmb_001_030 = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_dsmb_001_030[kk] = def$dSMB.A1B.2001.2030.Gt.year[q]
+}
+
+map_dsmb_071_100 = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_dsmb_071_100[kk] = def$dSMB.A1B.2071.2100.Gt.year[q]
+}
+
+map_dhdt = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_dhdt[kk] = def$dH.dt.Gt.year[q]
+}
