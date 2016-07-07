@@ -19,8 +19,9 @@ source("functions_plotting.r")
 
 
 # Map variables by basin 
-palette1 = c("darkmagenta","darkblue","blue","khaki1","red","red4")
-palette2 = c("magenta","darkblue","blue","white","orange","red","red4")
+palette1 = c("darkblue","blue4","blue2","khaki1","red","red4")
+palette2 = c("darkblue","blue4","blue2","white","orange","red","red4")
+palette3 = c("darkblue","blue4","blue2","cyan","white") #to plot precipitation (always negative??)
 
 zlim = range(map_gl,map_if,map_bm,map_smb,map_dhdt,na.rm=TRUE)
 # brks = pretty(zlim,11)
@@ -31,17 +32,64 @@ col    = colorRampPalette(palette2,bias=1.8)(length(brks)-1)
 # col1   = colorRampPalette(palette2,bias=1)(length(brks1)-1)
 
 myfigure(outfldr,"map_gl",type="png",asp=1.2,pointsize=12)
-plot_antarctica(Xc,Yc,map_gl,mask_ice,mask_super,breaks=brks,col=col,title="GL [Gt/a]")
+plot_antarctica(Xc,Yc,map_gl,mask_ice,mask_super,breaks=brks,col=col,title="GL [Gt/yr]")
+graphics.off()
+
+myfigure(outfldr,"map_if",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_if,mask_ice,mask_super,breaks=brks,col=col,title="IF [Gt/yr]")
+graphics.off()
+
+myfigure(outfldr,"map_bm",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_bm,mask_ice,mask_super,breaks=brks,col=col,title="BM [Gt/yr]")
+graphics.off()
+
+myfigure(outfldr,"map_smb",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_smb,mask_ice,mask_super,breaks=brks,col=col,title="SMB [Gt/yr] (Rignot)")
 graphics.off()
 
 myfigure(outfldr,"map_dhdt",type="png",asp=1.2,pointsize=12)
-plot_antarctica(Xc,Yc,map_dhdt,mask_ice,mask_super,breaks=brks,col=col,title="dH/dt [Gt/a]")
+plot_antarctica(Xc,Yc,map_dhdt,mask_ice,mask_super,breaks=brks,col=col,title="dH/dt [Gt/yr]")
 graphics.off()
 
+myfigure(outfldr,"map_smb_00_10",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_smb_00_10,mask_ice,mask_super,breaks=brks,col=col,title="SMB (2000-2010) [Gt/yr]")
+graphics.off()
 
+myfigure(outfldr,"map_smb_001_030",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_smb_001_030,mask_ice,mask_super,breaks=brks,col=col,title="SMB (2001-2030) [Gt/yr]")
+graphics.off()
 
+myfigure(outfldr,"map_smb_071_100",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_smb_071_100,mask_ice,mask_super,breaks=brks,col=col,title="SMB (2071-2100) [Gt/yr]")
+graphics.off()
 
+### PRECIPITATION PLOTS ###
 
+zlim = range(map_prec_001_030,map_prec_071_100,na.rm=TRUE)
+# brks = pretty(zlim,11)
+brks   = seq(-50000,-15,by=2000)
+col    = colorRampPalette(palette3)(length(brks)-1)
+
+myfigure(outfldr,"map_prec_001_030",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_prec_001_030,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (2001-2030) [mm/yr]")
+graphics.off()
+
+myfigure(outfldr,"map_prec_071_100",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_prec_071_100,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (2071-2100) [mm/yr]")
+graphics.off()
+
+#Maybe is a good idea to plot with more precision the regions where snow precipitation offset is smaller
+
+brks   = seq(-1000,-15,by=10)
+col    = colorRampPalette(palette3)(length(brks)-1)
+
+myfigure(outfldr,"map_prec_001_030_fine",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_prec_001_030,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (2001-2030) [mm/yr]")
+graphics.off()
+
+myfigure(outfldr,"map_prec_071_100_fine",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_prec_071_100,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (2071-2100) [mm/yr]")
+graphics.off()
 
 # image.plot(Xc,Yc,map_gl,breaks=brks,col=col)
 # contour(Xc,Yc,mask_ice,add=TRUE,levels=c(0,2,3),drawlabels=FALSE,lwd=3,col="grey50")

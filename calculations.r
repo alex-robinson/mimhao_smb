@@ -454,12 +454,22 @@ for (r in 2:5)  #r gives the different columns of the data frame
   
 }#There are 21 'super regions'
 
-### dh/dt (1981-2010) ###
-def[["dH.dt.1981.2010.Gt.year"]]=def[[3]]-def[[4]]-def[[8]]+def[[16]]
+for (r in 2:19)
+{
+  def[[r]][22] = sum(def[[r]][1:21], na.rm = TRUE)
+}
 
+### SMB projections (dSMB+Rignot.SMB) ###
+def[["SMB.A1B.2001.2030.Gt.year"]] = def$SMB.Gt.year + def$dSMB.A1B.2001.2030.Gt.year
+def[["SMB.A1B.2071.2100.Gt.year"]] = def$SMB.Gt.year + def$dSMB.A1B.2071.2100.Gt.year
 
-### dh/dt (A1B 2000-2010) ###
-def[["dH.dt.A1B.2000.2010.Gt.year"]]=def[[3]]-def[[4]]-def[[8]]+def[[16]]
+### dH/dt projections ###
+def[["dH.dt.proj.2001.2030.Gt.year"]] = def$SMB.A1B.2001.2030.Gt.year + def$GL.Gt.year - def$IF.Gt.year + def$BM.Gt.year
+def[["dH.dt.proj.2071.2100.Gt.year"]] = def$SMB.A1B.2071.2100.Gt.year + def$GL.Gt.year - def$IF.Gt.year + def$BM.Gt.year
+  
+### Snow precipitation offset ###
+def[["Snow.prec.2001.2030.mm.year"]] = - def[["dH.dt.proj.2001.2030.Gt.year"]]*1e12/(1e6*def$Area.Rignot.Km2)
+def[["Snow.prec.2071.2100.mm.year"]] = - def[["dH.dt.proj.2071.2100.Gt.year"]]*1e12/(1e6*def$Area.Rignot.Km2)
 
 #Save the definitive table to an xlsx file
 write.xlsx(def, "output/definitive.xlsx")
@@ -524,18 +534,6 @@ for (q in 1:n_reg) {
   map_bm[kk] = def$BM.Gt.year[q]
 }
 
-map_smb_81_10 = mask_super*NA
-for (q in 1:n_reg) {
-  kk = which(mask_super==q) 
-  map_smb_81_10[kk] = def$SMB.1981.2010.Gt.year[q]
-}
-
-map_smb_00_10 = mask_super*NA
-for (q in 1:n_reg) {
-  kk = which(mask_super==q) 
-  map_smb_00_10[kk] = def$SMB.A1B.2000.2010.Gt.year[q]
-}
-
 map_dsmb_001_030 = mask_super*NA
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
@@ -552,4 +550,34 @@ map_dhdt = mask_super*NA
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
   map_dhdt[kk] = def$dH.dt.Gt.year[q]
+}
+
+map_smb_00_10 = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_smb_00_10[kk] = def$SMB.A1B.2000.2010.Gt.year[q]
+}
+
+map_smb_001_030 = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_smb_001_030[kk] = def$SMB.A1B.2001.2030.Gt.year[q]
+}
+
+map_smb_071_100 = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_smb_071_100[kk] = def$SMB.A1B.2071.2100.Gt.year[q]
+}
+
+map_prec_001_030 = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_prec_001_030[kk] = def$Snow.prec.2001.2030.mm.year[q]
+}
+
+map_prec_071_100 = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_prec_071_100[kk] = def$Snow.prec.2071.2100.mm.year[q]
 }
