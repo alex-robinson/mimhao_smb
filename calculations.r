@@ -167,56 +167,56 @@ colors = c('chocolate4', 'orange', 'lightblue4', 'lightskyblue', 'blue',
 mask_plot2 = nasa_basin * mask_ice_all
 mask_plot2[mask_plot2==0] = NA
 
-## Plot of the topography of the Antarctica
-pdf(file.path(outfldr,"TOPO_BEDMAP2.pdf"))
-image(Xc, Yc, mask_plot2,col=NA) #first plot
-for (i in 1:27){
-    #image(Xc, Yc, region_mask[[i]]$ice, add=TRUE, col=c(NA,colors[i]))
-    image(Xc, Yc, region_mask[[i]]$land+region_mask[[i]]$ice, add=TRUE, col=c(NA,colors[i])) #plot of each region (27)
-    for (ii in seq(length=length(Xc))){
-        for (ij in seq(length=length(Yc))){
-            if (region_mask[[i]]$ice[ii,ij] != 0) {
-                points(Xc[ii], Yc[ij], pch = ".", cex = .1) #ice shelves are points
-            }
-        }
-    }#The following code in this loop is written to put the number of the regions in the plot
-#current_basin = which(region_mask[[i]]$land+region_mask[[i]]$ice!=0, arr.ind=TRUE)
-#basin_coordinates[i] = current_basin[8] #We take the first coincidence
-#text(Xc[basin_coordinates[i]], Yc[basin_coordinates[i]] ,label = i)  
-}
+# ## Plot of the topography of the Antarctica
+# pdf(file.path(outfldr,"TOPO_BEDMAP2.pdf"))
+# image(Xc, Yc, mask_plot2,col=NA) #first plot
+# for (i in 1:27){
+#     #image(Xc, Yc, region_mask[[i]]$ice, add=TRUE, col=c(NA,colors[i]))
+#     image(Xc, Yc, region_mask[[i]]$land+region_mask[[i]]$ice, add=TRUE, col=c(NA,colors[i])) #plot of each region (27)
+#     for (ii in seq(length=length(Xc))){
+#         for (ij in seq(length=length(Yc))){
+#             if (region_mask[[i]]$ice[ii,ij] != 0) {
+#                 points(Xc[ii], Yc[ij], pch = ".", cex = .1) #ice shelves are points
+#             }
+#         }
+#     }#The following code in this loop is written to put the number of the regions in the plot
+# #current_basin = which(region_mask[[i]]$land+region_mask[[i]]$ice!=0, arr.ind=TRUE)
+# #basin_coordinates[i] = current_basin[8] #We take the first coincidence
+# #text(Xc[basin_coordinates[i]], Yc[basin_coordinates[i]] ,label = i)  
+# }
 
-contour(Xc, Yc, mask_ice_land, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="red1") #grounding line contour
-contour(Xc, Yc, mask_ice_all, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="black") #total contour
-title("Antarctica (TOPO BEDMAP2)")
-dev.off()
+# contour(Xc, Yc, mask_ice_land, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="red1") #grounding line contour
+# contour(Xc, Yc, mask_ice_all, nlevels=1, add=TRUE, drawlabels=FALSE,lwd=2, col="black") #total contour
+# title("Antarctica (TOPO BEDMAP2)")
+# dev.off()
 
 
 # Creation of ice front mask ###################################################
 
 i1 = which(mask_ice_all == 1, arr.ind=T)
 
-iceland = region_any(mask_ice_all) #iceland is the contour of any region with ice (floating or supported in the land)
-jpeg(file.path(outfldr,"Antarctica.jpeg"), width = 720, height = 720, quality=100)
-image(Xc, Yc, iceland)
-title("Contour Antarctica")
-dev.off()
-jpeg(file.path(outfldr,"land.jpeg"), width = 720, height = 720, quality=100)
-landcontour = region_any(mask_ice_land) #landcontour is the contour of any region supported in land (so it's the region delimited by the grounding line)
-image(Xc, Yc, landcontour)
-title("Contour grounding land")
-dev.off()
-jpeg(file.path(outfldr,"ice.jpeg"), width = 720, height = 720, quality=100)
-icecontour = region_any(mask_ice_ice) #icecontour is the contour of any region with floating ice (so it's delimited by the ice selves)
-image(Xc, Yc, icecontour)
-title("Contour ice shelf")
-dev.off()
-jpeg(file.path(outfldr,"icefront.jpeg"), width = 720, height = 720, quality=100)
-icefront = region_any(mask_ice, 3) #icefront is the contour of the coast where there is ice on it
-image(Xc, Yc, icefront)
-title("Contour icefront")
-dev.off()
+# iceland = region_any(mask_ice_all) #iceland is the contour of any region with ice (floating or supported in the land)
+# jpeg(file.path(outfldr,"Antarctica.jpeg"), width = 720, height = 720, quality=100)
+# image(Xc, Yc, iceland)
+# title("Contour Antarctica")
+# dev.off()
+# jpeg(file.path(outfldr,"land.jpeg"), width = 720, height = 720, quality=100)
+# landcontour = region_any(mask_ice_land) #landcontour is the contour of any region supported in land (so it's the region delimited by the grounding line)
+# image(Xc, Yc, landcontour)
+# title("Contour grounding land")
+# dev.off()
+# jpeg(file.path(outfldr,"ice.jpeg"), width = 720, height = 720, quality=100)
+# icecontour = region_any(mask_ice_ice) #icecontour is the contour of any region with floating ice (so it's delimited by the ice selves)
+# image(Xc, Yc, icecontour)
+# title("Contour ice shelf")
+# dev.off()
+# jpeg(file.path(outfldr,"icefront.jpeg"), width = 720, height = 720, quality=100)
+# icefront = region_any(mask_ice, 3) #icefront is the contour of the coast where there is ice on it
+# image(Xc, Yc, icefront)
+# title("Contour icefront")
+# dev.off()
 
-#I HAVE CHANGE THIS TO DO IT WITH THE VELOCITIES
+#I HAVE CHANGED THIS TO DO IT WITH THE VELOCITIES
 #df_if = data.frame(row.names=index) #CHANGED
 #for (i in 1:length(index)){ #CHANGED
     #smb_racmo_bm[i] = sum(icefront*region_mask[[i]]$ice*area)/1e12*365 #CHANGED
@@ -227,16 +227,16 @@ dev.off()
 
 ## Plot the velocity u and v of the grounding line with the sign of dS
 groundline = regions_uv(mask_ice_land)
-jpeg(file.path(outfldr,"mask_u.jpeg"), width = 720, height = 720, quality=100)
-image(Xc,Yc,groundline$u, col=c('blue', NA, 'red'))
-legend("bottomleft", c("-1","1"), lty=1, col=c("blue", "red"), cex=.70, bty='n')
-title("u with sign dS")
-dev.off()
-jpeg(file.path(outfldr,"mask_v.jpeg"), width = 720, height = 720, quality=100)
-image(Xc,Yc,groundline$v, col=c('blue', NA, 'red'))
-legend("bottomleft", c("-1","1"), lty=1, col=c("blue", "red"), cex=.70, bty='n')
-title("v with sign dS")
-dev.off()
+# jpeg(file.path(outfldr,"mask_u.jpeg"), width = 720, height = 720, quality=100)
+# image(Xc,Yc,groundline$u, col=c('blue', NA, 'red'))
+# legend("bottomleft", c("-1","1"), lty=1, col=c("blue", "red"), cex=.70, bty='n')
+# title("u with sign dS")
+# dev.off()
+# jpeg(file.path(outfldr,"mask_v.jpeg"), width = 720, height = 720, quality=100)
+# image(Xc,Yc,groundline$v, col=c('blue', NA, 'red'))
+# legend("bottomleft", c("-1","1"), lty=1, col=c("blue", "red"), cex=.70, bty='n')
+# title("v with sign dS")
+# dev.off()
 
 #We define the thickness h
 h = TOPO_BEDMAP2$H
@@ -275,7 +275,7 @@ flux_gl_v = (-groundline$v * VEL_R11$v * dxdy * h *0.916/1e9) #CHANGED
 #flux_gl_v = ((-groundline$v * dxdy * h + -groundline$v * dxdy * h) /1e6)
 flux_gl_u_plot = apply(flux_gl_u, c(1,2), function(x) if (x==0) NA else x) #CHANGED
 flux_gl_v_plot = apply(flux_gl_v, c(1,2), function(x) if (x==0) NA else x) #CHANGED
-image.plot(Xc,Yc, flux_gl_v_plot)
+# image.plot(Xc,Yc, flux_gl_v_plot)
 
 flux_gl = sum(flux_gl_u + flux_gl_v)   
 print(flux_gl)
@@ -292,16 +292,16 @@ gl_tot1[gl_tot1==0] = NA
 
 # ## Plot the calving velocity uc and vc
 calving = regions_uv(mask_ice_ice)
-jpeg(file.path(outfldr,"mask_uc.jpeg"), width = 720, height = 720, quality=100)
-image(Xc,Yc,calving$u, col=c('blue', NA, 'red'))
-legend("bottomleft", c("-1","1"), lty=1, col=c("blue", "red"), cex=.70, bty='n')
-title("calving u with sign dS")
-dev.off()
-jpeg(file.path(outfldr,"mask_vc.jpeg"), width = 720, height = 720, quality=100)
-image(Xc,Yc,calving$v, col=c('blue', NA, 'red'))
-legend("bottomleft", c("-1","1"), lty=1, col=c("blue", "red"), cex=.70, bty='n')
-title("calving v with sign dS")
-dev.off()
+# jpeg(file.path(outfldr,"mask_uc.jpeg"), width = 720, height = 720, quality=100)
+# image(Xc,Yc,calving$u, col=c('blue', NA, 'red'))
+# legend("bottomleft", c("-1","1"), lty=1, col=c("blue", "red"), cex=.70, bty='n')
+# title("calving u with sign dS")
+# dev.off()
+# jpeg(file.path(outfldr,"mask_vc.jpeg"), width = 720, height = 720, quality=100)
+# image(Xc,Yc,calving$v, col=c('blue', NA, 'red'))
+# legend("bottomleft", c("-1","1"), lty=1, col=c("blue", "red"), cex=.70, bty='n')
+# title("calving v with sign dS")
+# dev.off()
 
 #NEW: IF FLUX (REGION BY REGION)
 if_flux <- array(0,c(dim(h), length(index)))
@@ -431,7 +431,28 @@ def[[15]][21]=df[[1]][26]+df[[1]][27]
 def[[15]][22]=sum(def[[15]][1:21], na.rm = TRUE)
 
 #The rest of the data in the data frame 'def' consists of the different 'smb' and 'dsmb' projections: 
-d
+for (r in 2:5)  #r gives the different columns of the data frame
+{
+  def[[r+14]][1]=df[[r]][1]/df[[1]][1]*def[[2]][1] #I divide by NASA's area and multiply by Rignot's area
+  def[[r+14]][2]=(df[[r]][2]+df[[r]][3])/(df[[1]][2]+df[[1]][3])*def[[2]][2]
+  for (s in 3:6)
+  {
+    def[[r+14]][s]=df[[r]][s+1]/df[[1]][s+1]*def[[2]][s]
+  }
+  def[[r+14]][7]=(df[[r]][9]+df[[r]][10]+df[[r]][11])/(df[[1]][9]+df[[1]][10]+df[[1]][11])*def[[2]][7]
+  for (s in 8:13)
+  {
+    def[[r+14]][s]=df[[r]][s+3]/df[[1]][s+3]*def[[2]][s]
+  }
+  def[[r+14]][14]=(df[[r]][18]+df[[r]][19])/(df[[1]][18]+df[[1]][19])*def[[2]][14]
+  for (s in 15:20)
+  {
+    def[[r+14]][s]=df[[r]][s+4]/df[[1]][s+4]*def[[2]][s]
+  }
+  def[[r+14]][21]=(df[[r]][26]+df[[r]][27])/(df[[1]][26]+df[[1]][27])*def[[2]][21]
+  def[[r+14]][22]=sum(def[[r+14]][1:21], na.rm = TRUE)
+  
+}#There are 21 'super regions'
 
 ### dh/dt (1981-2010) ###
 def[["dH.dt.1981.2010.Gt.year"]]=def[[3]]-def[[4]]-def[[8]]+def[[16]]
@@ -439,9 +460,6 @@ def[["dH.dt.1981.2010.Gt.year"]]=def[[3]]-def[[4]]-def[[8]]+def[[16]]
 
 ### dh/dt (A1B 2000-2010) ###
 def[["dH.dt.A1B.2000.2010.Gt.year"]]=def[[3]]-def[[4]]-def[[8]]+def[[16]]
-
-# Delete region with no area according to our mask
-#def = def[c(1:6,8:23),]
 
 #Save the definitive table to an xlsx file
 write.xlsx(def, "output/definitive.xlsx")
@@ -453,28 +471,28 @@ dev.off()
 
 # Define mask corresponding to super regions 
 mask_super = nasa_basin*mask_ice_ice 
-mask_super[nasa_basin %in% c(1)]   = 1
-mask_super[nasa_basin %in% c(2,3)] = 2
-mask_super[nasa_basin %in% c(4)]   = 3 
-mask_super[nasa_basin %in% c(5)]   = 4 
-mask_super[nasa_basin %in% c(6)]   = 5 
-mask_super[nasa_basin %in% c(7)]   = 6 
-mask_super[nasa_basin %in% c(8)]   = 7 
-mask_super[nasa_basin %in% c(9,10,11)] = 8
-mask_super[nasa_basin %in% c(12)] = 9
-mask_super[nasa_basin %in% c(13)] = 10
-mask_super[nasa_basin %in% c(14)] = 11
-mask_super[nasa_basin %in% c(15)] = 12
-mask_super[nasa_basin %in% c(16)] = 13
-mask_super[nasa_basin %in% c(17)] = 14
-mask_super[nasa_basin %in% c(18+19)] = 15
-mask_super[nasa_basin %in% c(20)] = 16
-mask_super[nasa_basin %in% c(21)] = 17
-mask_super[nasa_basin %in% c(22)] = 18
-mask_super[nasa_basin %in% c(23)] = 19
-mask_super[nasa_basin %in% c(24)] = 20
-mask_super[nasa_basin %in% c(25)] = 21
-mask_super[nasa_basin %in% c(26,27)] = 22
+mask_super[nasa_basin %in% c(1)]       = 1
+mask_super[nasa_basin %in% c(2,3)]     = 2
+mask_super[nasa_basin %in% c(4)]       = 3 
+mask_super[nasa_basin %in% c(5)]       = 4 
+mask_super[nasa_basin %in% c(6)]       = 5 
+mask_super[nasa_basin %in% c(7)]       = 6 
+mask_super[nasa_basin %in% c(8)]       = NA
+mask_super[nasa_basin %in% c(9,10,11)] = 7
+mask_super[nasa_basin %in% c(12)]      = 8
+mask_super[nasa_basin %in% c(13)]      = 9
+mask_super[nasa_basin %in% c(14)]      = 10
+mask_super[nasa_basin %in% c(15)]      = 11
+mask_super[nasa_basin %in% c(16)]      = 12
+mask_super[nasa_basin %in% c(17)]      = 13
+mask_super[nasa_basin %in% c(18,19)]   = 14
+mask_super[nasa_basin %in% c(20)]      = 15
+mask_super[nasa_basin %in% c(21)]      = 16
+mask_super[nasa_basin %in% c(22)]      = 17
+mask_super[nasa_basin %in% c(23)]      = 18
+mask_super[nasa_basin %in% c(24)]      = 19
+mask_super[nasa_basin %in% c(25)]      = 20
+mask_super[nasa_basin %in% c(26,27)]   = 21
 
 
 mask_super[mask_ice!=3] = NA #To only plot ice
