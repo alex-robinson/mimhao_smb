@@ -22,11 +22,11 @@ brks = seq(z1,z2,length.out=zint)
 # col    = c("red","blue")
 # col = rainbow(length(zlim)-1)
 col=colorRampPalette(c("darkmagenta","darkblue","blue","khaki1","red","red4"))(length(brks)-1)
-# plot_antarctica(Xc,Yc,map_gl,mask_ice,mask_super,breaks=brks,col=col)
 
-image.plot(Xc,Yc,map_gl,breaks=brks,col=col)
-contour(Xc,Yc,mask_ice,add=TRUE,levels=c(0,2,3),drawlabels=FALSE,lwd=3,col="grey50")
 
+plot_antarctica(Xc,Yc,map_gl,mask_ice,mask_super,breaks=brks,col=col,title="GL [Gt/a]")
+# image.plot(Xc,Yc,map_gl,breaks=brks,col=col)
+# contour(Xc,Yc,mask_ice,add=TRUE,levels=c(0,2,3),drawlabels=FALSE,lwd=3,col="grey50")
 
 ###GL PLOT###
 png(file.path(outfldr,"map_gl"))

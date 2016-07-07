@@ -137,7 +137,7 @@ mylegend <- function(breaks,col,units="mm",x=c(0,1),y=c(0,1),at=NULL,labels=NULL
 
 
 
-plot_antarctica = function(xc,yc,var,mask,mask_reg,breaks,col)
+plot_antarctica = function(xc,yc,var,mask,mask_reg,breaks,col,title)
 {
 
     xlim = range(xc)
@@ -150,26 +150,33 @@ plot_antarctica = function(xc,yc,var,mask,mask_reg,breaks,col)
     # Plot of complete Antarctic domain
     par(plt=c(0.1,0.90,0.1,0.9),xaxs="i",yaxs="i")
     plot(xlim,ylim,type="n",ann=FALSE,axes=FALSE)
-    axis(1)
-    axis(2)
-    grid()
+    mtext(side=3,line=0.5,las=0,title,cex=1.2)
+
+    # axis(1)
+    # axis(2)
+    # grid()
+
+    image(xc,yc,mask_ice,add=TRUE,breaks=c(-0.5,0.5),col="grey95")
+    contour(Xc,Yc,mask_ice,add=TRUE,levels=c(0,2,3),drawlabels=FALSE,lwd=2,col="grey50")
     image(xc,yc,var1,add=TRUE,breaks=breaks,col=col)
+    
+    # # Zoom lower-left 
+    # # regions: 14, 15, 16, 17, 18, 19
+    # var1_zoom = var1 
+    # var1_zoom[! mask_reg %in% c(15,16,17,18)] = NA 
+    # mask_zoom = mask 
+
+    # xlim = c(-2000,600)
+    # ylim = c(-1300,600)
+
+    # par(plt=c(0.05,0.8,0.05,0.65),new=TRUE)
+    # plot(xlim,ylim,type="n",ann=FALSE,axes=FALSE)
+    # image(xc,yc,var1_zoom,add=TRUE,breaks=breaks,col=col)
 
 
-    # Zoom lower-left 
-    # regions: 14, 15, 16, 17, 18, 19
-    var1_zoom = var1 
-    var1_zoom[! mask_reg %in% c(15,16,17,18)] = NA 
-    mask_zoom = mask 
-
-    xlim = c(-2000,600)
-    ylim = c(-1300,600)
-
-    par(plt=c(0.05,0.8,0.05,0.65),new=TRUE)
-    plot(xlim,ylim,type="n",ann=FALSE,axes=FALSE)
-    image(xc,yc,var1_zoom,add=TRUE,breaks=breaks,col=col)
-
-
+    # Add the legend 
+    par(plt=c(0.92,0.94,0.3,0.7),new=TRUE)
+    mylegend(breaks=brks,col=col)
 
 }
 
