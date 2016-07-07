@@ -399,7 +399,11 @@ if (comparation==TRUE){
 #..............NEW REGIONS...............#
 
 #Results of Rignot's paper are saved in 'new':
-new=read.xlsx("data/rignot_new.xlsx",sheet = 1, rows=c(1:24))
+tmp=read.xlsx("data/rignot_new.xlsx",sheet = 1, rows=c(1:24))
+
+# Delete region with no area
+new = tmp[c(1:6,8:23),]
+row.names(new) <- c(1:dim(new)[1])
 
 #Now, I'll do a definitive data frame (called 'def') with 'new' data plus our smb anomalies.
 def = data.frame(Name=new$Name,'Area.Rignot Km2'=new$Area.Rignot,'GL Gt/year'=new$GL,'IF Gt/year'=new$IF,'SMB Gt/year'=new$SMB,'dH/dt Gt/year'=new$dHdt,'Bss Gt/year'=new$BSS,'BM Gt/year'=new$BM,
@@ -409,49 +413,35 @@ def = data.frame(Name=new$Name,'Area.Rignot Km2'=new$Area.Rignot,'GL Gt/year'=ne
 #Area.NASA (obtained from 'Area_bedmap' column in df):
 def[[15]][1]=df[[1]][1]
 def[[15]][2]=df[[1]][2]+df[[1]][3]
-for (s in 3:7)
+for (s in 3:6)
 {
   def[[15]][s]=df[[1]][s+1]
 }
-def[[15]][8]=df[[1]][9]+df[[1]][10]+df[[1]][11]
-for (s in 9:14)
+def[[15]][7]=df[[1]][9]+df[[1]][10]+df[[1]][11]
+for (s in 8:13)
 {
   def[[15]][s]=df[[1]][s+3]
 }
-def[[15]][15]=df[[1]][18]+df[[1]][19]
-for (s in 16:21)
+def[[15]][14]=df[[1]][18]+df[[1]][19]
+for (s in 15:20)
 {
   def[[15]][s]=df[[1]][s+4]
 }
-def[[15]][22]=df[[1]][26]+df[[1]][27]
-def[[15]][23]=sum(def[[15]][1:22], na.rm = TRUE)
+def[[15]][21]=df[[1]][26]+df[[1]][27]
+def[[15]][22]=sum(def[[15]][1:21], na.rm = TRUE)
 
 #The rest of the data in the data frame 'def' consists of the different 'smb' and 'dsmb' projections: 
-for (r in 2:5)  #r gives the different columns of the data frame
-{
-  def[[r+14]][1]=df[[r]][1]/df[[1]][1]*def[[2]][1] #I divide by NASA's area and multiply by Rignot's area
-  def[[r+14]][2]=(df[[r]][2]+df[[r]][3])/(df[[1]][2]+df[[1]][3])*def[[2]][2]
-  for (s in 3:7)
-  {
-    def[[r+14]][s]=df[[r]][s+1]/df[[1]][s+1]*def[[2]][s]
-  }
-  def[[r+14]][8]=(df[[r]][9]+df[[r]][10]+df[[r]][11])/(df[[1]][9]+df[[1]][10]+df[[1]][11])*def[[2]][8]
-  for (s in 9:14)
-  {
-    def[[r+14]][s]=df[[r]][s+3]/df[[1]][s+3]*def[[2]][s]
-  }
-  def[[r+14]][15]=(df[[r]][18]+df[[r]][19])/(df[[1]][18]+df[[1]][19])*def[[2]][15]
-  for (s in 16:21)
-  {
-    def[[r+14]][s]=df[[r]][s+4]/df[[1]][s+4]*def[[2]][s]
-  }
-  def[[r+14]][22]=(df[[r]][26]+df[[r]][27])/(df[[1]][26]+df[[1]][27])*def[[2]][22]
-  def[[r+14]][23]=sum(def[[r+14]][1:22], na.rm = TRUE)
-  
-}#There are 22 'super regions'
+d
+
+### dh/dt (1981-2010) ###
+def[["dH.dt.1981.2010.Gt.year"]]=def[[3]]-def[[4]]-def[[8]]+def[[16]]
+
+
+### dh/dt (A1B 2000-2010) ###
+def[["dH.dt.A1B.2000.2010.Gt.year"]]=def[[3]]-def[[4]]-def[[8]]+def[[16]]
 
 # Delete region with no area according to our mask
-def = def[c(1:6,8:23),]
+#def = def[c(1:6,8:23),]
 
 #Save the definitive table to an xlsx file
 write.xlsx(def, "output/definitive.xlsx")
@@ -490,7 +480,7 @@ mask_super[nasa_basin %in% c(26,27)] = 22
 mask_super[mask_ice!=3] = NA #To only plot ice
 
 
-n_reg = max(mask_super,na.rm=TRUE)-1 #There are only 21 regions with all data
+n_reg = max(mask_super,na.rm=TRUE) #There are only 21 regions with all data
 
 map_gl = mask_super*NA
 for (q in 1:n_reg) {
