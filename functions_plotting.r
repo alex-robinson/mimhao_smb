@@ -137,29 +137,61 @@ mylegend <- function(breaks,col,units="mm",x=c(0,1),y=c(0,1),at=NULL,labels=NULL
 
 
 
-plot_antarctica = function(xc,yc,var,mask,mask_reg,breaks,col,title)
+plot_antarctica = function(xc,yc,var,mask,mask_reg,breaks,col,title,cex.lab=1)
 {
+    colax = "grey30" 
 
-    xlim = range(xc)
-    ylim = range(yc) 
+    # xlim = range(xc)
+    # ylim = range(yc) 
+    xlim = c(-3000,3000)
+    ylim = c(-3000,3000)
 
     var1 = var 
     var1[var<min(breaks)] = min(breaks)
     var1[var>max(breaks)] = max(breaks)
     
+    # # Also interpolate to higher resolution to avoid overlapping with contours 
+    # xhi = seq(xlim[1],xlim[2],by=10)
+    # yhi = seq(ylim[1],ylim[2],by=10)
+
+    # loc    = make.surface.grid(list(xhi,yhi))
+    # tmp    = interp.surface(list(x=xc,y=yc,z=var1), loc)
+    # var1hi = as.surface( loc, tmp)$z
+    ## NOTE: The above doesn't work, because nearest neighbor interpolation is needed
+    ##       for basin values 
+
     # Plot of complete Antarctic domain
-    par(plt=c(0.1,0.90,0.1,0.9),xaxs="i",yaxs="i")
+    par(plt=c(0.14,0.85,0.12,0.9),xaxs="i",yaxs="i",col.lab=colax,col.axis=colax)
+
     plot(xlim,ylim,type="n",ann=FALSE,axes=FALSE)
-    mtext(side=3,line=0.5,las=0,title,cex=1.2)
+    mtext(side=3,line=0.5,las=0,title,cex=cex.lab*1.2)
 
-    # axis(1)
-    # axis(2)
-    # grid()
+    grid()
+    axis(1,col=colax,col.lab=colax,col.axis=colax)
+    axis(2,col=colax,col.lab=colax,col.axis=colax)
 
-    image(xc,yc,mask_ice,add=TRUE,breaks=c(-0.5,0.5),col="grey95")
-    contour(Xc,Yc,mask_ice,add=TRUE,levels=c(0,2,3),drawlabels=FALSE,lwd=2,col="grey50")
+    mtext(side=1,line=1.2,las=0,"x [km]",col=colax,cex=cex.lab)
+    mtext(side=2,line=2.2,las=0,"y [km]",col=colax,cex=cex.lab)
+
+    image(xc,yc,mask_ice,add=TRUE,breaks=c(0.5,2),col="grey90")
+    contour(Xc,Yc,mask_ice,add=TRUE,levels=c(0,2,3),drawlabels=FALSE,lwd=3,col="grey40")
     image(xc,yc,var1,add=TRUE,breaks=breaks,col=col)
     
+    # Add point for south pole 
+    text(0,0,"South Pole",cex=0.7,col="grey20")
+
+    # Add text and lines for region names 
+    text(x=340,y=-380,cex=0.8,col="black","1")
+    segments(x0=150,y0=-670,x1=280,y1=-420,col=colax,lwd=1)
+
+
+
+
+
+
+
+
+
     # # Zoom lower-left 
     # # regions: 14, 15, 16, 17, 18, 19
     # var1_zoom = var1 
@@ -175,7 +207,7 @@ plot_antarctica = function(xc,yc,var,mask,mask_reg,breaks,col,title)
 
 
     # Add the legend 
-    par(plt=c(0.92,0.94,0.3,0.7),new=TRUE)
+    par(plt=c(0.90,0.92,0.3,0.7),new=TRUE)
     mylegend(breaks=brks,col=col)
 
 }

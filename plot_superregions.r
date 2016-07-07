@@ -4,27 +4,45 @@
 # Load plotting functions
 source("functions_plotting.r")
 
+# zlim = range(map_gl, na.rm=TRUE)
+# z1 = zlim[1]
+# z2 = zlim[2]
+# zint = 10
+# brks = seq(z1,z2,length.out=zint)
+# # col    = c("red","blue")
+# # col = rainbow(length(zlim)-1)
+# col=colorRampPalette(c("darkmagenta","darkblue","blue","khaki1","red","red4"))(length(brks)-1)
+
+# par(mfrow=c(1,3))
+# asp=1.2,pointsize=12
+# asp=2.4,pointsize=7 
+
+
 # Map variables by basin 
+palette1 = c("darkmagenta","darkblue","blue","khaki1","red","red4")
+palette2 = c("magenta","darkblue","blue","white","orange","red","red4")
 
+zlim = range(map_gl,map_if,map_bm,map_smb,map_dhdt,na.rm=TRUE)
+# brks = pretty(zlim,11)
+brks   = seq(-90,190,by=20)
+col    = colorRampPalette(palette2,bias=1.8)(length(brks)-1)
 
-# Plot variables 
-# image(Xc,Yc,mask_ice,col=c("grey95",NA,"white","grey80"))
-# image(Xc,Yc,map_gl,add=TRUE)
-# # contour(Xc,Yc,mask_ice,add=TRUE,levels=c(0,2),drawlabels=FALSE,lwd=4)
+# brks1  = seq(-20,20,length.out=11)
+# col1   = colorRampPalette(palette2,bias=1)(length(brks1)-1)
 
-
-
-zlim = range(map_gl, na.rm=TRUE)
-z1 = zlim[1]
-z2 = zlim[2]
-zint = 10
-brks = seq(z1,z2,length.out=zint)
-# col    = c("red","blue")
-# col = rainbow(length(zlim)-1)
-col=colorRampPalette(c("darkmagenta","darkblue","blue","khaki1","red","red4"))(length(brks)-1)
-
-
+myfigure(outfldr,"map_gl",type="png",asp=1.2,pointsize=12)
 plot_antarctica(Xc,Yc,map_gl,mask_ice,mask_super,breaks=brks,col=col,title="GL [Gt/a]")
+graphics.off()
+
+myfigure(outfldr,"map_dhdt",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_dhdt,mask_ice,mask_super,breaks=brks,col=col,title="dH/dt [Gt/a]")
+graphics.off()
+
+
+
+
+
+
 # image.plot(Xc,Yc,map_gl,breaks=brks,col=col)
 # contour(Xc,Yc,mask_ice,add=TRUE,levels=c(0,2,3),drawlabels=FALSE,lwd=3,col="grey50")
 
