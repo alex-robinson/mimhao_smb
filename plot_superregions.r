@@ -70,6 +70,10 @@ zlim = range(map_prec_001_030,map_prec_071_100,na.rm=TRUE)
 brks   = seq(-50000,-15,by=2000)
 col    = colorRampPalette(palette3)(length(brks)-1)
 
+myfigure(outfldr,"map_prec_current",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_prec_current,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (current) [mm/yr]")
+graphics.off()
+
 myfigure(outfldr,"map_prec_001_030",type="png",asp=1.2,pointsize=12)
 plot_antarctica(Xc,Yc,map_prec_001_030,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (2001-2030) [mm/yr]")
 graphics.off()
@@ -82,6 +86,10 @@ graphics.off()
 
 brks   = seq(-1000,-15,by=10)
 col    = colorRampPalette(palette3)(length(brks)-1)
+
+myfigure(outfldr,"map_prec_current_fine",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_prec_current,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (current) [mm/yr]")
+graphics.off()
 
 myfigure(outfldr,"map_prec_001_030_fine",type="png",asp=1.2,pointsize=12)
 plot_antarctica(Xc,Yc,map_prec_001_030,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (2001-2030) [mm/yr]")
@@ -148,13 +156,13 @@ dev.off()
 
 ###SMB 1981-2010 (REANALYSIS)###
 png(file.path(outfldr,"map_smb_81_10"))
-zlim = c(range(map_smb_81_10, na.rm=TRUE))
+zlim = c(range(map_smb, na.rm=TRUE))
 z1 = zlim[1]
 z2 = zlim[2]
 zint = 10
 brks = seq(z1,z2,length.out=zint)
 col=colorRampPalette(c("darkmagenta","darkblue","blue","khaki1","red","red4"))(length(brks)-1)
-image.plot(Xc,Yc,map_smb_81_10,breaks=brks,col=col)
+image.plot(Xc,Yc,map_smb,breaks=brks,col=col)
 title("Surface mass balance (1981-2010)")
 contour(Xc,Yc,mask_ice,add=TRUE,levels=c(0,2,3),drawlabels=FALSE,lwd=3,col="grey50")
 dev.off()

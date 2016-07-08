@@ -468,6 +468,7 @@ def[["dH.dt.proj.2001.2030.Gt.year"]] = def$SMB.A1B.2001.2030.Gt.year + def$GL.G
 def[["dH.dt.proj.2071.2100.Gt.year"]] = def$SMB.A1B.2071.2100.Gt.year + def$GL.Gt.year - def$IF.Gt.year + def$BM.Gt.year
   
 ### Snow precipitation offset ###
+def[["Current.snow.prec.offset.mm.year"]] = - def$dH.dt.Gt.year*1e12/(1e6*def$Area.Rignot.Km2)
 def[["Snow.prec.2001.2030.mm.year"]] = - def[["dH.dt.proj.2001.2030.Gt.year"]]*1e12/(1e6*def$Area.Rignot.Km2)
 def[["Snow.prec.2071.2100.mm.year"]] = - def[["dH.dt.proj.2071.2100.Gt.year"]]*1e12/(1e6*def$Area.Rignot.Km2)
 
@@ -568,6 +569,12 @@ map_smb_071_100 = mask_super*NA
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
   map_smb_071_100[kk] = def$SMB.A1B.2071.2100.Gt.year[q]
+}
+
+map_prec_current = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_prec_current[kk] = def$Current.snow.prec.offset.mm.year[q]
 }
 
 map_prec_001_030 = mask_super*NA
