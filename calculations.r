@@ -481,21 +481,41 @@ dev.off()
 
 
 ## NEW GOAL: BMELT perturbations ## 
-nms = names(def)[c(1,2,3,4,5,6,8,19,21,23)]  # Columns of interest
+nms = names(def)[c(1,2)]  # Columns of interest
 table2 = def[nms]
 
 # Convert Gt/a => m/a  
-## TO DO ##
+## DONE ##
 
 # Change headings to reflect new units 
-## TO DO ## 
+## DONE ## 
 
-# Calculate bmelt anomaly to make future shelves unstable 
-kappa = 1    # m/a/K 
+# Calculate bmelt anomaly to make future shelves unstable
+## TO DO ##
 
-table2[["dT.unstable.2071.2100.K"]] = NA   # Define new column 
-## TO DO ## 
+kappa = 1    # m/a/K
+                                           #Gt=1e12; 1mm=1e-3m; 1km2=1e6m2
+table2[["GL.m.year"]]                    = def$GL.Gt.year*1e9/(def$Area.Rignot.Km2*1e6) 
+table2[["IF.m.year"]]                    = def$IF.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
+table2[["SMB.m.year"]]                   = def$SMB.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
+table2[["dH.dt.m.year"]]                 = def$dH.dt.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
+table2[["BM.m.year"]]                    = def$BM.Gt.year*1e9/(def$Area.Rignot.Km2*1e6) #Basal melt observations
+table2[["dSMB.A1B.2071.2100.m.year"]]    = def$dSMB.A1B.2071.2100.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
+table2[["SMB.A1B.2071.2100.m.year"]]     = def$SMB.A1B.2071.2100.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
+table2[["dH.dt.proj.2071-2100.m.year"]]  = def$dH.dt.proj.2071.2100.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
+table2[["BM.anom.m.year"]]               = table2[["dH.dt.proj.2071-2100.m.year"]] #Basal melt anomaly
+table2[["dT.unstable.2071.2100.K"]]      =  table2[["BM.anom.m.year"]]/kappa # Define new column 
 
+
+
+#Save table2 to a pdf file
+pdf(file.path(outfldr,"table2.pdf"),height=10, width=25)
+grid.table(table2)
+dev.off()
+
+
+
+### MAPS OF EACH VARIABLE ###
 
 # Define mask corresponding to super regions 
 mask_super = nasa_basin*mask_ice_ice 
@@ -604,4 +624,10 @@ map_prec_071_100 = mask_super*NA
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
   map_prec_071_100[kk] = def$Snow.prec.2071.2100.mm.year[q]
+}
+
+map_dT_uns = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_dT_uns[kk] = table2$dT.unstable.2071.2100.K[q]
 }

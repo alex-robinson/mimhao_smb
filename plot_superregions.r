@@ -21,7 +21,8 @@ source("functions_plotting.r")
 # Map variables by basin 
 palette1 = c("darkblue","blue4","blue2","khaki1","red","red4")
 palette2 = c("darkblue","blue4","blue2","white","orange","red","red4")
-palette3 = c("darkblue","blue4","blue2","cyan","white") #to plot precipitation (always negative??)
+palette3 = c("darkblue","blue4","blue2","cyan","white") #to plot precipitation (always negative)
+palette4 = c("white", "khaki1","red","red4") #to plot oceanic temperature anomalies (always positives)
 
 zlim = range(map_gl,map_if,map_bm,map_smb,map_dhdt,na.rm=TRUE)
 # brks = pretty(zlim,11)
@@ -101,6 +102,27 @@ graphics.off()
 
 # image.plot(Xc,Yc,map_gl,breaks=brks,col=col)
 # contour(Xc,Yc,mask_ice,add=TRUE,levels=c(0,2,3),drawlabels=FALSE,lwd=3,col="grey50")
+
+
+### OCEANIC TEMPERATURE ANOMALIES PLOTS ###
+
+zlim = range(map_dT_uns,na.rm=TRUE)
+brks   = pretty(zlim,11)
+col    = colorRampPalette(palette4)(length(brks)-1)
+
+myfigure(outfldr,"map_dT_uns",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_dT_uns,mask_ice,mask_super,breaks=brks,col=col,title="Oceanic subsurface-temperature anomalies (2071-2100) [m/yr]")
+graphics.off()
+
+#Maybe is a good idea to plot with more precision the regions where temperature anomalies are smaller
+
+brks   = seq(0,5,by=0.1)
+col    = colorRampPalette(palette4)(length(brks)-1)
+
+myfigure(outfldr,"map_dT_uns_fine",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_dT_uns,mask_ice,mask_super,breaks=brks,col=col,title="Oceanic subsurface-temperature anomalies (2071-2100) [m/yr]")
+graphics.off()
+
 
 ###GL PLOT###
 png(file.path(outfldr,"map_gl"))
