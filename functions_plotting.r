@@ -1,6 +1,6 @@
 
 
-myfigure <- function(fldr=".",file="Rplot",date=TRUE,type="pdf",engine="cairo",
+myfigure <- function(fldr=".",file="Rplot",date=FALSE,type="pdf",engine="cairo",
                      width=NULL,height=NULL,units="mm",asp=1,pointsize=12,res=300,
                      cex=1,cex.lab=1,cex.axis=1,bg="white",onefile=TRUE)
 {

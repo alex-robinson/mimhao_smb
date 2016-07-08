@@ -479,6 +479,23 @@ grid.table(def)
 dev.off()
 
 
+## NEW GOAL: BMELT perturbations ## 
+nms = names(def)[c(1,2,3,4,5,6,8,19,21,23)]  # Columns of interest
+table2 = def[nms]
+
+# Convert Gt/a => m/a  
+## TO DO ##
+
+# Change headings to reflect new units 
+## TO DO ## 
+
+# Calculate bmelt anomaly to make future shelves unstable 
+kappa = 1    # m/a/K 
+
+table2[["dT.unstable.2071.2100.K"]] = NA   # Define new column 
+## TO DO ## 
+
+
 # Define mask corresponding to super regions 
 mask_super = nasa_basin*mask_ice_ice 
 mask_super[nasa_basin %in% c(1)]       = 1
