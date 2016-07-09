@@ -23,6 +23,7 @@ palette1 = c("darkblue","blue4","blue2","khaki1","red","red4")
 palette2 = c("darkblue","blue4","blue2","white","orange","red","red4")
 palette3 = c("darkblue","blue4","blue2","cyan","white") #to plot precipitation (always negative)
 palette4 = c("white", "khaki1","red","red4") #to plot oceanic temperature anomalies (always positives)
+palette5 = c("red4", "red", "khaki1", "white") #to plot unstable areas
 
 zlim = range(map_gl,map_if,map_bm,map_smb,map_dhdt,na.rm=TRUE)
 # brks = pretty(zlim,11)
@@ -71,9 +72,6 @@ zlim = range(map_prec_001_030,map_prec_071_100,na.rm=TRUE)
 brks   = seq(-50000,-15,by=2000)
 col    = colorRampPalette(palette3)(length(brks)-1)
 
-myfigure(outfldr,"map_prec_current",type="png",asp=1.2,pointsize=12)
-plot_antarctica(Xc,Yc,map_prec_current,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (current) [mm/yr]")
-graphics.off()
 
 myfigure(outfldr,"map_prec_001_030",type="png",asp=1.2,pointsize=12)
 plot_antarctica(Xc,Yc,map_prec_001_030,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (2001-2030) [mm/yr]")
@@ -103,6 +101,16 @@ graphics.off()
 # image.plot(Xc,Yc,map_gl,breaks=brks,col=col)
 # contour(Xc,Yc,mask_ice,add=TRUE,levels=c(0,2,3),drawlabels=FALSE,lwd=3,col="grey50")
 
+### CURRENT OFFSET PRECIPITATION MAP ###
+
+zlim = range(map_prec_current,na.rm=TRUE)
+brks   = seq(-720,5400,by=200)
+col    = colorRampPalette(palette2,bias=3.5)(length(brks)-1)
+
+myfigure(outfldr,"map_prec_current",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_prec_current,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (current) [mm/yr]")
+graphics.off() #This is the precipitation necesary to not to lose mass ice
+
 
 ### OCEANIC TEMPERATURE ANOMALIES PLOTS ###
 
@@ -120,7 +128,16 @@ brks   = seq(0,5,by=0.1)
 col    = colorRampPalette(palette4)(length(brks)-1)
 
 myfigure(outfldr,"map_dT_uns_fine",type="png",asp=1.2,pointsize=12)
-plot_antarctica(Xc,Yc,map_dT_uns,mask_ice,mask_super,breaks=brks,col=col,title="Oceanic subsurface-temperature anomalies (2071-2100) [m/yr]")
+plot_antarctica(Xc,Yc,map_dT_uns,mask_ice,mask_super,breaks=brks,col=col,title="Oceanic subsurface-temperature anomalies (2071-2100) [deg]")
+graphics.off()
+
+### PLOTS OF THE AREAS IN DANGER ###
+
+brks   = seq(0,5,by=0.1)
+col    = colorRampPalette(palette5)(length(brks)-1)
+
+myfigure(outfldr,"map_instability",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_dT_uns,mask_ice,mask_super,breaks=brks,col=col,title="Unstable areas (2071-2100) [deg]")
 graphics.off()
 
 
