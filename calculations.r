@@ -459,18 +459,27 @@ for (r in 2:19)
   def[[r]][22] = sum(def[[r]][1:21], na.rm = TRUE)
 }
 
+### Current SMB in mm/yr
+
+def[["SMB.A1B.2000.2010.mm.yr"]]=def[["SMB.A1B.2000.2010.Gt.year"]]*1e12/(1e6*def$Area.Rignot.Km2)
+
 ### SMB projections (dSMB+Rignot.SMB) ###
 def[["SMB.A1B.2001.2030.Gt.year"]] = def$SMB.Gt.year + def$dSMB.A1B.2001.2030.Gt.year
 def[["SMB.A1B.2071.2100.Gt.year"]] = def$SMB.Gt.year + def$dSMB.A1B.2071.2100.Gt.year
 
 ### dH/dt projections ###
-def[["dH.dt.proj.2001.2030.Gt.year"]] = def$SMB.A1B.2001.2030.Gt.year + def$GL.Gt.year - def$IF.Gt.year + def$BM.Gt.year
-def[["dH.dt.proj.2071.2100.Gt.year"]] = def$SMB.A1B.2071.2100.Gt.year + def$GL.Gt.year - def$IF.Gt.year + def$BM.Gt.year
+def[["dH.dt.model.2001.2010.Gt.year"]] =  def$SMB.A1B.2000.2010.Gt.year + def$GL.Gt.year - def$IF.Gt.year - def$BM.Gt.year
+def[["dH.dt.proj.2001.2030.Gt.year"]]  =  def$SMB.A1B.2001.2030.Gt.year + def$GL.Gt.year - def$IF.Gt.year - def$BM.Gt.year
+def[["dH.dt.proj.2071.2100.Gt.year"]]  =  def$SMB.A1B.2071.2100.Gt.year + def$GL.Gt.year - def$IF.Gt.year - def$BM.Gt.year
   
 ### Snow precipitation offset ###
-def[["Current.snow.prec.offset.mm.year"]] = - def$dH.dt.Gt.year*1e12/(1e6*def$Area.Rignot.Km2)
-def[["Snow.prec.2001.2030.mm.year"]] = - def[["dH.dt.proj.2001.2030.Gt.year"]]*1e12/(1e6*def$Area.Rignot.Km2)
-def[["Snow.prec.2071.2100.mm.year"]] = - def[["dH.dt.proj.2071.2100.Gt.year"]]*1e12/(1e6*def$Area.Rignot.Km2)
+def[["Rignot.snow.prec.offset.mm.year"]]  = - def$dH.dt.Gt.year*1e12/(1e6*def$Area.Rignot.Km2) #Rignot
+def[["Current.snow.prec.offset.mm.year"]] = - def$dH.dt.model.2001.2010.Gt.year*1e12/(1e6*def$Area.Rignot.Km2) #model (2001-2010)
+def[["Snow.prec.2001.2030.mm.year"]]      = - def[["dH.dt.proj.2001.2030.Gt.year"]]*1e12/(1e6*def$Area.Rignot.Km2)
+def[["Snow.prec.2071.2100.mm.year"]]      = - def[["dH.dt.proj.2071.2100.Gt.year"]]*1e12/(1e6*def$Area.Rignot.Km2)
+
+### Percentage of precipitation offset ###
+def[["Current.prec.percentage.%"]] = (def[["Current.snow.prec.offset.mm.year"]]/def[["SMB.A1B.2000.2010.mm.yr"]])*100
 
 #Save the definitive table to an xlsx file
 write.xlsx(def, "output/definitive.xlsx")
@@ -502,9 +511,10 @@ table2[["dH.dt.m.year"]]                 = def$dH.dt.Gt.year*1e9/(def$Area.Rigno
 table2[["BM.m.year"]]                    = def$BM.Gt.year*1e9/(def$Area.Rignot.Km2*1e6) #Basal melt observations
 table2[["dSMB.A1B.2071.2100.m.year"]]    = def$dSMB.A1B.2071.2100.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
 table2[["SMB.A1B.2071.2100.m.year"]]     = def$SMB.A1B.2071.2100.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
-table2[["dH.dt.proj.2071-2100.m.year"]]  = def$dH.dt.proj.2071.2100.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
-table2[["BM.anom.m.year"]]               = table2[["dH.dt.proj.2071-2100.m.year"]] #Basal melt anomaly
-table2[["dT.unstable.2071.2100.K"]]      =  table2[["BM.anom.m.year"]]/kappa # Define new column 
+table2[["dH.dt.model.2001.2010.m.year"]] = def$dH.dt.model.2001.2010.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
+table2[["dH.dt.proj.2071.2100.m.year"]]  = def$dH.dt.proj.2071.2100.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
+table2[["BM.anom.m.year"]]               = table2[["dH.dt.proj.2071.2100.m.year"]] #Basal melt anomaly
+table2[["dT.unstable.2071.2100.K"]]      = table2[["BM.anom.m.year"]]/kappa # Define new column 
 
 
 
@@ -566,6 +576,13 @@ for (q in 1:n_reg) {
   map_smb[kk] = def$SMB.Gt.year[q]
 }
 
+map_smb_81_10 = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_smb_81_10[kk] = def$SMB.1981.2010.Gt.year[q]
+}
+
+
 map_bm = mask_super*NA
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
@@ -584,10 +601,16 @@ for (q in 1:n_reg) {
   map_dsmb_071_100[kk] = def$dSMB.A1B.2071.2100.Gt.year[q]
 }
 
-map_dhdt = mask_super*NA
+map_dhdt = mask_super*NA #Rignot's dh/dt in Gt/yr
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
   map_dhdt[kk] = def$dH.dt.Gt.year[q]
+}
+
+map_dhdt_model = mask_super*NA #Model's dh/dt in Gt/year
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_dhdt_model[kk] = def$dH.dt.model.2001.2010.Gt.year[q]
 }
 
 map_smb_00_10 = mask_super*NA
@@ -608,10 +631,25 @@ for (q in 1:n_reg) {
   map_smb_071_100[kk] = def$SMB.A1B.2071.2100.Gt.year[q]
 }
 
-map_prec_current = mask_super*NA
+
+map_prec_current_rignot = mask_super*NA  #Rignot
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
-  map_prec_current[kk] = def$Current.snow.prec.offset.mm.year[q]
+  map_prec_current_rignot[kk] = def$Rignot.snow.prec.offset.mm.year[q]
+}
+
+
+map_prec_current_model = mask_super*NA #Model (for the 'current' period: 2001-2010)
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_prec_current_model[kk] = def$Current.snow.prec.offset.mm.year[q]
+}
+
+
+map_prec_current_percent = mask_super*NA #Model (for the 'current' period: 2001-2010)
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_prec_current_percent[kk] = def$`Current.prec.percentage.%`[q]
 }
 
 map_prec_001_030 = mask_super*NA
@@ -624,6 +662,12 @@ map_prec_071_100 = mask_super*NA
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
   map_prec_071_100[kk] = def$Snow.prec.2071.2100.mm.year[q]
+}
+
+map_dHdT_071_100 = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_dHdT_071_100[kk] = table2$dH.dt.proj.2071.2100.m.year[q]
 }
 
 map_dT_uns = mask_super*NA

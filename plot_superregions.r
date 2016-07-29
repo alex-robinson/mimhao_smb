@@ -22,13 +22,13 @@ source("functions_plotting.r")
 palette1 = c("darkblue","blue4","blue2","khaki1","red","red4")
 palette2 = c("darkblue","blue4","blue2","white","orange","red","red4")
 palette3 = c("darkblue","blue4","blue2","cyan","white") #to plot precipitation (always negative)
-palette4 = c("white", "khaki1","red","red4") #to plot oceanic temperature anomalies (always positives)
+palette4 = c("white", "khaki1","red","red4") #to plot projected dH/dt and oceanic temperature anomalies (always positives)
 palette5 = c("red4", "red", "khaki1", "white") #to plot unstable areas
 
 zlim = range(map_gl,map_if,map_bm,map_smb,map_dhdt,na.rm=TRUE)
 # brks = pretty(zlim,11)
-brks   = seq(-90,190,by=20)
-col    = colorRampPalette(palette2,bias=1.8)(length(brks)-1)
+brks   = seq(-110,190,by=10)
+col    = colorRampPalette(palette2,bias=1.5)(length(brks)-1)
 
 # brks1  = seq(-20,20,length.out=11)
 # col1   = colorRampPalette(palette2,bias=1)(length(brks1)-1)
@@ -49,8 +49,12 @@ myfigure(outfldr,"map_smb",type="png",asp=1.2,pointsize=12)
 plot_antarctica(Xc,Yc,map_smb,mask_ice,mask_super,breaks=brks,col=col,title="SMB [Gt/yr] (Rignot)")
 graphics.off()
 
-myfigure(outfldr,"map_dhdt",type="png",asp=1.2,pointsize=12)
-plot_antarctica(Xc,Yc,map_dhdt,mask_ice,mask_super,breaks=brks,col=col,title="dH/dt [Gt/yr]")
+myfigure(outfldr,"map_dhdt_rignot",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_dhdt,mask_ice,mask_super,breaks=brks,col=col,title="dH/dt [Gt/yr] (Rignot et al)")
+graphics.off()
+
+myfigure(outfldr,"map_dhdt_model",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_dhdt_model,mask_ice,mask_super,breaks=brks,col=col,title="dH/dt [Gt/yr] (RACMO 2.3)")
 graphics.off()
 
 myfigure(outfldr,"map_smb_00_10",type="png",asp=1.2,pointsize=12)
@@ -86,8 +90,12 @@ graphics.off()
 brks   = seq(-1000,-15,by=10)
 col    = colorRampPalette(palette3)(length(brks)-1)
 
-myfigure(outfldr,"map_prec_current_fine",type="png",asp=1.2,pointsize=12)
-plot_antarctica(Xc,Yc,map_prec_current,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (current) [mm/yr]")
+myfigure(outfldr,"map_prec_current_fine_rignot",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_prec_current_rignot,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (current) [mm/yr]")
+graphics.off()
+
+myfigure(outfldr,"map_prec_current_fine_model",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_prec_current_model,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (current) [mm/yr]")
 graphics.off()
 
 myfigure(outfldr,"map_prec_001_030_fine",type="png",asp=1.2,pointsize=12)
@@ -101,15 +109,49 @@ graphics.off()
 # image.plot(Xc,Yc,map_gl,breaks=brks,col=col)
 # contour(Xc,Yc,mask_ice,add=TRUE,levels=c(0,2,3),drawlabels=FALSE,lwd=3,col="grey50")
 
+
+
 ### CURRENT OFFSET PRECIPITATION MAP ###
 
 zlim = range(map_prec_current,na.rm=TRUE)
 brks   = seq(-720,5400,by=200)
 col    = colorRampPalette(palette2,bias=3.5)(length(brks)-1)
 
-myfigure(outfldr,"map_prec_current",type="png",asp=1.2,pointsize=12)
-plot_antarctica(Xc,Yc,map_prec_current,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (current) [mm/yr]")
+myfigure(outfldr,"map_prec_current_rignot",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_prec_current_rignot ,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (current) [mm/yr]")
 graphics.off() #This is the precipitation necesary to not to lose mass ice
+
+myfigure(outfldr,"map_prec_current_model",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_prec_current_model ,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (current) [mm/yr]")
+graphics.off() #This is the precipitation necesary to not to lose mass ice
+
+
+brks   = seq(-150,3150,by=100)
+col    = colorRampPalette(palette2, bias=5)(length(brks)-1)
+
+myfigure(outfldr,"map_prec_current_perc",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_prec_current_percent,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (current) [%]")
+graphics.off() #I HAVE TO CREATE A NEW "myfigure" with percentages in the legend
+
+
+### NET MASS BALANCE PROJECTIONS (2071-2100) ###
+
+zlim = range(map_dHdT_071_100,na.rm=TRUE)
+brks   = pretty(zlim,11)
+col    = colorRampPalette(palette4)(length(brks)-1)
+
+myfigure(outfldr,"map_dHdT_071_100",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_dHdT_071_100,mask_ice,mask_super,breaks=brks,col=col,title="Net mass balance (2071-2100) [m/yr]")
+graphics.off() #This is the projected net mass balance for the period 2071-2100
+
+#Maybe is a good idea to plot with more precision the regions where net mass balance is smaller
+
+brks   = seq(0,5,by=0.1)
+col    = colorRampPalette(palette4)(length(brks)-1)
+
+myfigure(outfldr,"map_dHdT_071_100_uns_fine",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_dHdT_071_100,mask_ice,mask_super,breaks=brks,col=col,title="Net mass balance (2071-2100) [m/yr]")
+graphics.off()
 
 
 ### OCEANIC TEMPERATURE ANOMALIES PLOTS ###
@@ -195,7 +237,7 @@ dev.off()
 
 ###SMB 1981-2010 (REANALYSIS)###
 png(file.path(outfldr,"map_smb_81_10"))
-zlim = c(range(map_smb, na.rm=TRUE))
+zlim = c(range(map_smb_81_10, na.rm=TRUE))
 z1 = zlim[1]
 z2 = zlim[2]
 zint = 10
