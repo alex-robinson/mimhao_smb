@@ -467,6 +467,8 @@ def[["SMB.A1B.2000.2010.mm.yr"]]=def[["SMB.A1B.2000.2010.Gt.year"]]*1e12/(1e6*de
 def[["SMB.A1B.2001.2030.Gt.year"]] = def$SMB.Gt.year + def$dSMB.A1B.2001.2030.Gt.year
 def[["SMB.A1B.2071.2100.Gt.year"]] = def$SMB.Gt.year + def$dSMB.A1B.2071.2100.Gt.year
 
+def[["SMB.A1B.2071.2100.mm.yr"]] = def[["SMB.A1B.2071.2100.Gt.year"]]*1e12/(1e6*def$Area.Rignot.Km2)
+
 ### dH/dt projections ###
 def[["dH.dt.model.2001.2010.Gt.year"]] =  def$SMB.A1B.2000.2010.Gt.year + def$GL.Gt.year - def$IF.Gt.year - def$BM.Gt.year
 def[["dH.dt.proj.2001.2030.Gt.year"]]  =  def$SMB.A1B.2001.2030.Gt.year + def$GL.Gt.year - def$IF.Gt.year - def$BM.Gt.year
@@ -480,6 +482,7 @@ def[["Snow.prec.2071.2100.mm.year"]]      = - def[["dH.dt.proj.2071.2100.Gt.year
 
 ### Percentage of precipitation offset ###
 def[["Current.prec.percentage.%"]] = (def[["Current.snow.prec.offset.mm.year"]]/def[["SMB.A1B.2000.2010.mm.yr"]])*100
+def[["Future.prec.percentage.%"]] = (def[["Snow.prec.2071.2100.mm.year"]]/def[["SMB.A1B.2071.2100.mm.yr"]])*100
 
 #Save the definitive table to an xlsx file
 write.xlsx(def, "output/definitive.xlsx")
@@ -613,6 +616,12 @@ for (q in 1:n_reg) {
   map_dhdt_model[kk] = def$dH.dt.model.2001.2010.Gt.year[q]
 }
 
+map_dhdt_model_m = mask_super*NA #Model's dh/dt in Gt/year
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_dhdt_model_m[kk] = table2$dH.dt.model.2001.2010.m.year[q]
+}
+
 map_smb_00_10 = mask_super*NA
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
@@ -664,10 +673,24 @@ for (q in 1:n_reg) {
   map_prec_071_100[kk] = def$Snow.prec.2071.2100.mm.year[q]
 }
 
+
+map_prec_future_percent = mask_super*NA #Model (for the 'current' period: 2001-2010)
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_prec_future_percent[kk] = def$`Future.prec.percentage.%`[q]
+}
+
+
 map_dHdT_071_100 = mask_super*NA
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
-  map_dHdT_071_100[kk] = table2$dH.dt.proj.2071.2100.m.year[q]
+  map_dHdT_071_100[kk] = def$dH.dt.proj.2071.2100.Gt.year[q]
+}
+
+map_dHdT_071_100_m = mask_super*NA
+for (q in 1:n_reg) {
+  kk = which(mask_super==q) 
+  map_dHdT_071_100_m[kk] = table2$dH.dt.proj.2071.2100.m.year[q]
 }
 
 map_dT_uns = mask_super*NA

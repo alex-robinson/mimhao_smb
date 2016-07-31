@@ -24,6 +24,8 @@ palette2 = c("darkblue","blue4","blue2","white","orange","red","red4")
 palette3 = c("darkblue","blue4","blue2","cyan","white") #to plot precipitation (always negative)
 palette4 = c("white", "khaki1","red","red4") #to plot projected dH/dt and oceanic temperature anomalies (always positives)
 palette5 = c("red4", "red", "khaki1", "white") #to plot unstable areas
+palette6 = c("darkblue","blue2","white","red","red4") #to plot unstable areas
+
 
 zlim = range(map_gl,map_if,map_bm,map_smb,map_dhdt,na.rm=TRUE)
 # brks = pretty(zlim,11)
@@ -54,7 +56,7 @@ plot_antarctica(Xc,Yc,map_dhdt,mask_ice,mask_super,breaks=brks,col=col,title="dH
 graphics.off()
 
 myfigure(outfldr,"map_dhdt_model",type="png",asp=1.2,pointsize=12)
-plot_antarctica(Xc,Yc,map_dhdt_model,mask_ice,mask_super,breaks=brks,col=col,title="dH/dt [Gt/yr] (RACMO 2.3)")
+plot_antarctica(Xc,Yc,map_dhdt_model,mask_ice,mask_super,breaks=brks,col=col,title="dH/dt [Gt/yr] (Current RACMO 2.3)")
 graphics.off()
 
 myfigure(outfldr,"map_smb_00_10",type="png",asp=1.2,pointsize=12)
@@ -68,6 +70,17 @@ graphics.off()
 myfigure(outfldr,"map_smb_071_100",type="png",asp=1.2,pointsize=12)
 plot_antarctica(Xc,Yc,map_smb_071_100,mask_ice,mask_super,breaks=brks,col=col,title="SMB (2071-2100) [Gt/yr]")
 graphics.off()
+
+### dh/dt in meters per year
+
+brks   = seq(-6,1,by=0.1)
+col    = colorRampPalette(palette6, bias=0.2125)(length(brks)-1)
+
+myfigure(outfldr,"map_dHdT_model_m",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_dhdt_model_m,mask_ice,mask_super,breaks=brks,col=col,title="Current dH/dt RACMO 2.3 [m/yr]")
+graphics.off()
+
+
 
 ### PRECIPITATION PLOTS ###
 
@@ -113,7 +126,7 @@ graphics.off()
 
 ### CURRENT OFFSET PRECIPITATION MAP ###
 
-zlim = range(map_prec_current,na.rm=TRUE)
+#zlim = range(map_prec_current,na.rm=TRUE)
 brks   = seq(-720,5400,by=200)
 col    = colorRampPalette(palette2,bias=3.5)(length(brks)-1)
 
@@ -130,18 +143,34 @@ brks   = seq(-150,3150,by=100)
 col    = colorRampPalette(palette2, bias=5)(length(brks)-1)
 
 myfigure(outfldr,"map_prec_current_perc",type="png",asp=1.2,pointsize=12)
-plot_antarctica(Xc,Yc,map_prec_current_percent,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset (current) [%]")
+plot_antarctica(Xc,Yc,map_prec_current_percent,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset [%] (current) ")
 graphics.off() #I HAVE TO CREATE A NEW "myfigure" with percentages in the legend
 
 
+### FUTURE OFFSET PRECIPITATION MAP###
+
+brks   = seq(-150,3150,by=100)
+col    = colorRampPalette(palette2, bias=5)(length(brks)-1)
+
+myfigure(outfldr,"map_prec_future_perc",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_prec_future_percent,mask_ice,mask_super,breaks=brks,col=col,title="Snow precipitation offset [%] (2071-2100)")
+graphics.off() #I HAVE TO CREATE A NEW "myfigure" with percentages in the legend
+
 ### NET MASS BALANCE PROJECTIONS (2071-2100) ###
 
-zlim = range(map_dHdT_071_100,na.rm=TRUE)
-brks   = pretty(zlim,11)
-col    = colorRampPalette(palette4)(length(brks)-1)
+brks   = seq(-110,190,by=10)
+col    = colorRampPalette(palette2,bias=1.5)(length(brks)-1)
 
-myfigure(outfldr,"map_dHdT_071_100",type="png",asp=1.2,pointsize=12)
-plot_antarctica(Xc,Yc,map_dHdT_071_100,mask_ice,mask_super,breaks=brks,col=col,title="Net mass balance (2071-2100) [m/yr]")
+myfigure(outfldr,"map_dHdT_071_100",type="png",asp=1.2,pointsize=12) #In Gt/yr
+plot_antarctica(Xc,Yc,map_dHdT_071_100,mask_ice,mask_super,breaks=brks,col=col,title="dH/dt [Gt/yr] (2071-2100 RACMO 2.3) ")
+graphics.off() #This is the projected net mass balance for the period 2071-2100
+
+
+brks   = seq(-6,1,by=0.1)
+col    = colorRampPalette(palette6, bias=0.2125)(length(brks)-1)
+
+myfigure(outfldr,"map_dHdT_071_100_m",type="png",asp=1.2,pointsize=12) #In meters
+plot_antarctica(Xc,Yc,map_dHdT_071_100_m,mask_ice,mask_super,breaks=brks,col=col,title="dH/dt [m/yr] (2071-2100 RACMO 2.3)")
 graphics.off() #This is the projected net mass balance for the period 2071-2100
 
 #Maybe is a good idea to plot with more precision the regions where net mass balance is smaller
@@ -156,26 +185,16 @@ graphics.off()
 
 ### OCEANIC TEMPERATURE ANOMALIES PLOTS ###
 
-zlim = range(map_dT_uns,na.rm=TRUE)
-brks   = pretty(zlim,11)
-col    = colorRampPalette(palette4)(length(brks)-1)
+brks   = seq(-6,1,by=0.1)
+col    = colorRampPalette(palette6, bias=0.2125)(length(brks)-1)
 
 myfigure(outfldr,"map_dT_uns",type="png",asp=1.2,pointsize=12)
-plot_antarctica(Xc,Yc,map_dT_uns,mask_ice,mask_super,breaks=brks,col=col,title="Oceanic subsurface-temperature anomalies (2071-2100) [m/yr]")
-graphics.off()
-
-#Maybe is a good idea to plot with more precision the regions where temperature anomalies are smaller
-
-brks   = seq(0,5,by=0.1)
-col    = colorRampPalette(palette4)(length(brks)-1)
-
-myfigure(outfldr,"map_dT_uns_fine",type="png",asp=1.2,pointsize=12)
 plot_antarctica(Xc,Yc,map_dT_uns,mask_ice,mask_super,breaks=brks,col=col,title="Oceanic subsurface-temperature anomalies (2071-2100) [deg]")
 graphics.off()
 
 ### PLOTS OF THE AREAS IN DANGER ###
 
-brks   = seq(0,5,by=0.1)
+brks   = seq(-5,0,by=0.1)
 col    = colorRampPalette(palette5)(length(brks)-1)
 
 myfigure(outfldr,"map_instability",type="png",asp=1.2,pointsize=12)
