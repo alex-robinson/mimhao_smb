@@ -420,12 +420,12 @@ for (s in 3:6)
 def[[15]][7]=df[[1]][9]+df[[1]][10]+df[[1]][11]
 for (s in 8:13)
 {
-  def[[15]][s]=df[[1]][s+3]
+  def[[15]][s]=df[[1]][s+4]
 }
 def[[15]][14]=df[[1]][18]+df[[1]][19]
 for (s in 15:20)
 {
-  def[[15]][s]=df[[1]][s+4]
+  def[[15]][s]=df[[1]][s+5]
 }
 def[[15]][21]=df[[1]][26]+df[[1]][27]
 def[[15]][22]=sum(def[[15]][1:21], na.rm = TRUE)
@@ -442,7 +442,7 @@ for (r in 2:5)  #r gives the different columns of the data frame
   def[[r+14]][7]=(df[[r]][9]+df[[r]][10]+df[[r]][11])/(df[[1]][9]+df[[1]][10]+df[[1]][11])*def[[2]][7]
   for (s in 8:13)
   {
-    def[[r+14]][s]=df[[r]][s+3]/df[[1]][s+3]*def[[2]][s]
+    def[[r+14]][s]=df[[r]][s+4]/df[[1]][s+4]*def[[2]][s]
   }
   def[[r+14]][14]=(df[[r]][18]+df[[r]][19])/(df[[1]][18]+df[[1]][19])*def[[2]][14]
   for (s in 15:20)
@@ -464,19 +464,19 @@ for (r in 2:19)
 def[["SMB.A1B.2000.2010.mm.yr"]]=def[["SMB.A1B.2000.2010.Gt.year"]]*1e12/(1e6*def$Area.Rignot.Km2)
 
 ### SMB projections (dSMB+Rignot.SMB) ###
-def[["SMB.A1B.2001.2030.Gt.year"]] = def$SMB.Gt.year + def$dSMB.A1B.2001.2030.Gt.year
-def[["SMB.A1B.2071.2100.Gt.year"]] = def$SMB.Gt.year + def$dSMB.A1B.2071.2100.Gt.year
+def[["SMB.A1B.2001.2030.Gt.year"]] = def[["SMB.A1B.2000.2010.Gt.year"]] + def$dSMB.A1B.2001.2030.Gt.year
+def[["SMB.A1B.2071.2100.Gt.year"]] = def[["SMB.A1B.2000.2010.Gt.year"]] + def$dSMB.A1B.2071.2100.Gt.year
 
 def[["SMB.A1B.2071.2100.mm.yr"]] = def[["SMB.A1B.2071.2100.Gt.year"]]*1e12/(1e6*def$Area.Rignot.Km2)
 
 ### dH/dt projections ###
-def[["dH.dt.model.2001.2010.Gt.year"]] =  def$SMB.A1B.2000.2010.Gt.year + def$GL.Gt.year - def$IF.Gt.year - def$BM.Gt.year
+def[["dH.dt.model.2000.2010.Gt.year"]] =  def$SMB.A1B.2000.2010.Gt.year + def$GL.Gt.year - def$IF.Gt.year - def$BM.Gt.year
 def[["dH.dt.proj.2001.2030.Gt.year"]]  =  def$SMB.A1B.2001.2030.Gt.year + def$GL.Gt.year - def$IF.Gt.year - def$BM.Gt.year
 def[["dH.dt.proj.2071.2100.Gt.year"]]  =  def$SMB.A1B.2071.2100.Gt.year + def$GL.Gt.year - def$IF.Gt.year - def$BM.Gt.year
   
 ### Snow precipitation offset ###
 def[["Rignot.snow.prec.offset.mm.year"]]  = - def$dH.dt.Gt.year*1e12/(1e6*def$Area.Rignot.Km2) #Rignot
-def[["Current.snow.prec.offset.mm.year"]] = - def$dH.dt.model.2001.2010.Gt.year*1e12/(1e6*def$Area.Rignot.Km2) #model (2001-2010)
+def[["Current.snow.prec.offset.mm.year"]] = - def$dH.dt.model.2000.2010.Gt.year*1e12/(1e6*def$Area.Rignot.Km2) #model (2001-2010)
 def[["Snow.prec.2001.2030.mm.year"]]      = - def[["dH.dt.proj.2001.2030.Gt.year"]]*1e12/(1e6*def$Area.Rignot.Km2)
 def[["Snow.prec.2071.2100.mm.year"]]      = - def[["dH.dt.proj.2071.2100.Gt.year"]]*1e12/(1e6*def$Area.Rignot.Km2)
 
@@ -512,9 +512,10 @@ table2[["IF.m.year"]]                    = def$IF.Gt.year*1e9/(def$Area.Rignot.K
 table2[["SMB.m.year"]]                   = def$SMB.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
 table2[["dH.dt.m.year"]]                 = def$dH.dt.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
 table2[["BM.m.year"]]                    = def$BM.Gt.year*1e9/(def$Area.Rignot.Km2*1e6) #Basal melt observations
+table2[["SMB.A1B.2000.2010.m.year"]]     = def[["SMB.A1B.2000.2010.Gt.year"]]*1e9/(def$Area.Rignot.Km2*1e6)
 table2[["dSMB.A1B.2071.2100.m.year"]]    = def$dSMB.A1B.2071.2100.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
 table2[["SMB.A1B.2071.2100.m.year"]]     = def$SMB.A1B.2071.2100.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
-table2[["dH.dt.model.2001.2010.m.year"]] = def$dH.dt.model.2001.2010.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
+table2[["dH.dt.model.2000.2010.m.year"]] = def$dH.dt.model.2000.2010.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
 table2[["dH.dt.proj.2071.2100.m.year"]]  = def$dH.dt.proj.2071.2100.Gt.year*1e9/(def$Area.Rignot.Km2*1e6)
 table2[["BM.anom.m.year"]]               = table2[["dH.dt.proj.2071.2100.m.year"]] #Basal melt anomaly
 table2[["dT.unstable.2071.2100.K"]]      = table2[["BM.anom.m.year"]]/kappa # Define new column 
@@ -522,7 +523,7 @@ table2[["dT.unstable.2071.2100.K"]]      = table2[["BM.anom.m.year"]]/kappa # De
 
 
 #Save table2 to a pdf file
-pdf(file.path(outfldr,"table2.pdf"),height=10, width=25)
+pdf(file.path(outfldr,"table2.pdf"),height=10, width=20)
 grid.table(table2)
 dev.off()
 
@@ -573,7 +574,7 @@ for (q in 1:n_reg) {
   map_if[kk] = def$IF.Gt.year[q]
 }
 
-map_smb = mask_super*NA
+map_smb = mask_super*NA #Rignot
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
   map_smb[kk] = def$SMB.Gt.year[q]
@@ -613,16 +614,16 @@ for (q in 1:n_reg) {
 map_dhdt_model = mask_super*NA #Model's dh/dt in Gt/year
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
-  map_dhdt_model[kk] = def$dH.dt.model.2001.2010.Gt.year[q]
+  map_dhdt_model[kk] = def$dH.dt.model.2000.2010.Gt.year[q]
 }
 
 map_dhdt_model_m = mask_super*NA #Model's dh/dt in Gt/year
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
-  map_dhdt_model_m[kk] = table2$dH.dt.model.2001.2010.m.year[q]
+  map_dhdt_model_m[kk] = table2$dH.dt.model.2000.2010.m.year[q]
 }
 
-map_smb_00_10 = mask_super*NA
+map_smb_00_10 = mask_super*NA #Model
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
   map_smb_00_10[kk] = def$SMB.A1B.2000.2010.Gt.year[q]
@@ -674,7 +675,7 @@ for (q in 1:n_reg) {
 }
 
 
-map_prec_future_percent = mask_super*NA #Model (for the 'current' period: 2001-2010)
+map_prec_future_percent = mask_super*NA #Model (for the 'future' period: 2071-2100)
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
   map_prec_future_percent[kk] = def$`Future.prec.percentage.%`[q]
@@ -698,3 +699,113 @@ for (q in 1:n_reg) {
   kk = which(mask_super==q) 
   map_dT_uns[kk] = table2$dT.unstable.2071.2100.K[q]
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####### DEFINITIVE COMPACT TABLES #######
+
+### A MORE COMPACT TABLE (IN M/YR) ###
+
+nms2 = names(def)[c(1,15)]  # Columns of interest
+table3 = def[nms2]
+table3[c(3,4)]=table2[c(3,4)]
+table3[c(5,6)]=table2[c(7,8)]
+table3[c(7,8,9)] = table2[c(10,11,12)]
+
+names(table3)[1]  = "Ice shelves"
+names(table3)[2]  = "Area [km2]"
+names(table3)[3]  = "GL [m/yr]"
+names(table3)[4]  = "IF [m/yr]"
+names(table3)[5]  = "BM [m/yr]"
+names(table3)[6]  = "SMB (2000-2010) [m/yr]"
+names(table3)[7]  = "SMB (2071-2100) [m/yr]"
+names(table3)[8]  = "dH/dt (2000-2010) [m/yr]"
+names(table3)[9]  = "dH/dt (2071-2100) [m/yr]"
+
+
+#Save table3 to a pdf file
+pdf(file.path(outfldr,"table3.pdf"),height=10, width=20)
+grid.table(table3)
+dev.off()
+
+### A MORE COMPACT TABLE (IN GT/YR) ###
+
+table4 = def[nms2]
+table4[c(3,4)]=def[c(3,4)]
+table4[5]=def[8]
+table4[6]=def[17]
+table4[7]=def[22]
+table4[8]=def[24]
+table4[9]=def[26]
+table3[c(7,8,9)] = table2[c(10,11,12)]
+
+names(table3)[1]  = "Ice shelves"
+names(table4)[2]  = "Area [km2]"
+names(table4)[3]  = "GL [Gt/yr]"
+names(table4)[4]  = "IF [Gt/yr]"
+names(table4)[5]  = "BM [Gt/yr]"
+names(table4)[6]  = "SMB (2000-2010) [Gt/yr]"
+names(table4)[7]  = "SMB (2071-2100) [Gt/yr]"
+names(table4)[8]  = "dH/dt (2000-2010) [Gt/yr]"
+names(table4)[9]  = "dH/dt (2071-2100) [Gt/yr]"
+
+
+#Save table4 to a pdf file
+pdf(file.path(outfldr,"table4.pdf"),height=10, width=20)
+grid.table(table4)
+dev.off()
+
+
+### A COMPACT TABLE OF CURRENT PRECIPITATION ###
+
+table5 = def[nms2]
+
+table5[3]=def[17]
+table5[4]=def[20]
+table5[5]=def[28]
+table5[6]=def[31]
+names(table5)[1]  = "Ice shelves"
+names(table5)[2]  = "Area [km2]"
+names(table5)[3]  = "SMB (2000-2010) [Gt/yr]"
+names(table5)[4]  = "SMB (2000-2010) [mm/yr]"
+names(table5)[5]  = "Precip. offset (2000-2010) [mm/yr]"
+names(table5)[6]  = "Precip. offset (2000-2010) [%]"
+
+#Save table5 to a pdf file
+pdf(file.path(outfldr,"table5.pdf"),height=10, width=20)
+grid.table(table5)
+dev.off()
+
+
+### A COMPACT TABLE OF FUTURE PRECIPITATION ###
+
+table6 = def[nms2]
+
+table6[c(3,4)]=def[c(22,23)]
+table6[5]=def[30]
+table6[6]=def[32]
+names(table6)[1]  = "Ice shelves"
+names(table6)[2]  = "Area [km2]"
+names(table6)[3]  = "SMB (2071-2100) [Gt/yr]"
+names(table6)[4]  = "SMB (2071-2100) [mm/yr]"
+names(table6)[5]  = "Precip. offset (2071-2100) [mm/yr]"
+names(table6)[6]  = "Precip. offset (2071-2100) [%]"
+
+#Save table6 to a pdf file
+pdf(file.path(outfldr,"table6.pdf"),height=10, width=20)
+grid.table(table6)
+dev.off()
+
