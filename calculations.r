@@ -752,7 +752,7 @@ table4[8]=def[24]
 table4[9]=def[26]
 table3[c(7,8,9)] = table2[c(10,11,12)]
 
-names(table3)[1]  = "Ice shelves"
+names(table4)[1]  = "Ice shelves"
 names(table4)[2]  = "Area [km2]"
 names(table4)[3]  = "GL [Gt/yr]"
 names(table4)[4]  = "IF [Gt/yr]"
