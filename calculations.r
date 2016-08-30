@@ -809,3 +809,61 @@ pdf(file.path(outfldr,"table6.pdf"),height=10, width=20)
 grid.table(table6)
 dev.off()
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#######LAST CALCULATIONS#######
+
+# We have to evaluate this situation
+# H + (dH/dt)dt >= zb? 
+# and extract the value of dt when in the limit of this equation (= zb)
+
+
+#We'll use this data:
+
+#TOPO_BEDMAP2$zb
+#TOPO_BEDMAP2$H
+#table3$`dH/dt (2000-2010) [m/yr]`
+#table3$`dH/dt (2071-2100) [m/yr]`
+
+#H and zb are defined for each point but dH/dt is calculated for each region
+
+Dt = 1; #period of time (initially one year, that is the changes in 2071)
+gice = TOPO_BEDMAP2$H        #Grounded ice mask
+gice[] = NA                  #Grounded ice mask
+newH = TOPO_BEDMAP2$H        #New thickness
+newH[] = NA                  #New thickness
+Dep = - TOPO_BEDMAP2$zb      # Depth with positive sign
+
+count = NA
+
+  for(i in 1:n_reg)
+  {
+    reg = which(mask_plot2==i)
+    for (Dt in 0:100)
+    {
+      newH[reg] = TOPO_BEDMAP2$H[reg]+Dt*table3$`dH/dt (2071-2100) [m/yr]`[i]
+      abovesl = which(Dep[reg]<0) #Which values are above sea level (negative depths)
+      Dep[reg][abovesl] = NA #In our study we eliminate points above sea level
+      gice_points = which(newH[reg]>=Dep[reg]) #Which points are grounded
+      gice[which(is.na(gice[gice_points]))] = Dt #How many years (since january 1st 2071) are necessary to achieve stability
+      #gice[which(gice[gice_points])==100] = ">100"
+      count[Dt] = length(which(gice[reg] > 0)) #How many points are grounded in year Dt
+      #Now we could plot gice for each region and year to see how it changes
+    }
+  }
+
+
