@@ -203,13 +203,22 @@ graphics.off()
 
 
 
+### PLOTS OF TIME TO ACHIEVE STABILITY ###
+
+brks   = seq(0,15400,by=2) #NUMBER OF YEARS
+col    = colorRampPalette(palette4)(length(brks)-1)
+
+myfigure(outfldr,"map_years",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_Yr,mask_ice,mask_super,breaks=brks,col=col,title="Time to achieve stability (Since 2071) [Yr]")
+graphics.off()
 
 
+brks   = seq(2071,17500,by=2) #YEARS
+col    = colorRampPalette(palette4)(length(brks)-1)
 
-
-
-
-
+myfigure(outfldr,"map_yearsN",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_YrN,mask_ice,mask_super,breaks=brks,col=col,title="Stability year")
+graphics.off()
 
 
 
