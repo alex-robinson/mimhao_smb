@@ -834,6 +834,7 @@ dev.off()
 
   Dep  = - TOPO_BEDMAP2$zb     # Depth with positive sign
   Yrs  = array(dim=n_reg)      # Number of years to achieve stability in all points
+  
     
   for (i in 1:n_reg)
   {
@@ -842,7 +843,7 @@ dev.off()
     Dep[reg][abovesl] = NA #In our study we eliminate points above sea level
     TOPO_BEDMAP2$H[reg][abovesl] = NA #In our study we eliminate points above sea level
     Dt=array(dim=c(length(TOPO_BEDMAP2$H[reg])))
-    Dt=(Dep[reg]-TOPO_BEDMAP2$H[reg])/table3$`dH/dt (2071-2100) [m/yr]`[i] #Time to achieve stability (yr)
+    Dt=(Dep[reg]-(916.8/1000)*TOPO_BEDMAP2$H[reg])/table3$`dH/dt (2071-2100) [m/yr]`[i] #Time to achieve stability (yr)
     Yrs[i] = max(Dt, na.rm=TRUE)
   }
 
@@ -852,11 +853,14 @@ Yrs #Show the years on screen
 
 nms3 = names(def)[c(1)] 
 table7 = def[nms3]
-table7$Stability.time.yr=Yrs
+table7$Stability.time.yr=round(Yrs)
 table7$Stability.year=as.integer(Yrs+2071)
+table7$Stability.year[which(is.na(table7$Stability.year))]="Alredy grounded"
+table7$Stability.time.yr[which(is.infinite(table7$Stability.time.yr))]=0
 pdf(file.path(outfldr,"table7.pdf"),height=10, width=10)
 grid.table(table7)
 dev.off()
+
 
 map_Yr = mask_super*NA
 for (q in 1:n_reg) {

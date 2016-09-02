@@ -25,7 +25,7 @@ palette3 = c("darkblue","blue4","blue2","cyan","white") #to plot precipitation (
 palette4 = c("white", "khaki1","red","red4") #to plot projected dH/dt and oceanic temperature anomalies (always positives)
 palette5 = c("red4", "red", "khaki1", "white") #to plot unstable areas
 palette6 = c("darkblue","blue2","white","red","red4") #to plot unstable areas
-
+palette7 = c("white", "khaki1", "yellow", "orange", "red4")
 
 zlim = range(map_gl,map_if,map_bm,map_smb,map_dhdt,na.rm=TRUE)
 # brks = pretty(zlim,11)
@@ -220,6 +220,12 @@ myfigure(outfldr,"map_yearsN",type="png",asp=1.2,pointsize=12)
 plot_antarctica(Xc,Yc,map_YrN,mask_ice,mask_super,breaks=brks,col=col,title="Stability year")
 graphics.off()
 
+brks   = seq(2071,3000,by=2) #YEARS
+col    = colorRampPalette(palette4)(length(brks)-1)
+
+myfigure(outfldr,"map_yearszoom",type="png",asp=1.2,pointsize=12)
+plot_antarctica(Xc,Yc,map_YrN,mask_ice,mask_super,breaks=brks,col=col,title="Stability year")
+graphics.off()
 
 
 #..........MAPS WITH THE RESULTS..........#
