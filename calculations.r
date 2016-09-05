@@ -833,30 +833,99 @@ dev.off()
 
 
   Dep  = - TOPO_BEDMAP2$zb     # Depth with positive sign
-  Yrs  = array(dim=n_reg)      # Number of years to achieve stability in all points
+  Yrs  = array(dim=n_reg)      # Number of years (since 2000) to achieve stability in all points THIS IS THE RESULT OF THE LOOP
+  a = array(dim=n_reg)         # "Slope"
+  dH = array(dim=1000000)
+  reg = which(mask_super==1)
+  H    = TOPO_BEDMAP2$zb[reg]
   
-    
-  for (i in 1:n_reg)
+  
+  for(i in 1:n_reg)
   {
-    reg = which(mask_super==i)
+    Dt = 0; #Years since 2005 (Year zero corresponds with 2005)
+    reg = which(mask_super==i) #Label of the region
     abovesl = which(Dep[reg]<0) #Which values are above sea level (negative depths)
     Dep[reg][abovesl] = NA #In our study we eliminate points above sea level
     TOPO_BEDMAP2$H[reg][abovesl] = NA #In our study we eliminate points above sea level
-    Dt=array(dim=c(length(TOPO_BEDMAP2$H[reg])))
-    Dt=(Dep[reg]-(916.8/1000)*TOPO_BEDMAP2$H[reg])/table3$`dH/dt (2071-2100) [m/yr]`[i] #Time to achieve stability (yr)
-    Yrs[i] = max(Dt, na.rm=TRUE)
+    a[i] = (table3$`dH/dt (2071-2100) [m/yr]`[i] - table3$`dH/dt (2000-2010) [m/yr]`[i])/(2071-2005) #Slope of dH/dt(Dt)
+    rm(H)
+    H = (916.8/1000)*(TOPO_BEDMAP2$H[reg]) #H in 2005
+    dH[] = NA
+    
+    while (is.na(Yrs[i]))
+    {
+      dH[Dt+1] = table3$`dH/dt (2000-2010) [m/yr]`[i] + a[i] * Dt
+      H = H+(916.8/1000)*dH[Dt+1]
+      if(is.na(H[1]))
+        {
+        Yrs[i] = 0
+        }
+      else{
+      if(H[which.min(H)]>Dep[reg][which.max(Dep[reg])])
+          { 
+          Yrs[i] = Dt-5 
+          } 
+        else
+          { 
+            if(a[i]>0)
+            {
+            Dt = Dt+1
+            }
+            else
+            {
+            Yrs[i] = +Inf
+            }
+          }
+      }
+    }
+    
   }
-
-Yrs[22]=max(Yrs) #Time to recover the stability in all Antarctica
-Yrs #Show the years on screen
-
-
-nms3 = names(def)[c(1)] 
+  
+  
+  Yrs[22] = max(c(Yrs[1:6],Yrs[8:20]))
+  
+  
+  
+  
+  
+  
+  
+#   #CURRENT THICKNESS
+#   for(i in 1:n_reg)
+#   {
+#     reg = which(mask_super==i)
+#     abovesl = which(Dep[reg]<0) #Which values are above sea level (negative depths)
+#     Dep[reg][abovesl] = NA #In our study we eliminate points above sea level
+#     TOPO_BEDMAP2$H[reg][abovesl] = NA #In our study we eliminate points above sea level
+#     H=TOPO_BEDMAP2$H[reg]+10*table3$`dH/dt (2000-2010) [m/yr]`[i] #2000 thickness + 10yr x current rate
+#   }
+#   
+#   #FUTURE THICKNESS
+#   for (i in 1:n_reg)
+#   {
+#     reg = which(mask_super==i)
+#     abovesl = which(Dep[reg]<0) #Which values are above sea level (negative depths)
+#     Dep[reg][abovesl] = NA #In our study we eliminate points above sea level
+#     TOPO_BEDMAP2$H[reg][abovesl] = NA #In our study we eliminate points above sea level
+#     Dt=array(dim=c(length(TOPO_BEDMAP2$H[reg])))
+#     Dt=(Dep[reg]-(916.8/1000)*H)/table3$`dH/dt (2071-2100) [m/yr]`[i] #Time to achieve stability (yr)
+#     Yrs[i] = max(Dt, na.rm=TRUE)
+#   }
+# 
+# Yrs[22]=max(Yrs) #Time to recover the stability in all Antarctica
+# Yrs #Show the years on screen
+# 
+# 
+  
+nms3 = names(def)[c(1)]
 table7 = def[nms3]
-table7$Stability.time.yr=round(Yrs)
-table7$Stability.year=as.integer(Yrs+2071)
-table7$Stability.year[which(is.na(table7$Stability.year))]="Alredy grounded"
-table7$Stability.time.yr[which(is.infinite(table7$Stability.time.yr))]=0
+table7$"dt to ground [yr]"=Yrs-10
+table7$"dt to ground [yr]"[which(table7$"dt to ground [yr]"==-10)]=0
+#table7$Stability.year=Yrs+2000
+#table7$Stability.year[which(is.infinite(table7$Stability.time.yr))]="Never grounded"
+#table7$Stability.year[which(table7$Stability.time.yr==0)]="Alredy grounded"
+# table7$Stability.time.yr[which(is.infinite(table7$Stability.time.yr))]="Never grounded"
+# table7$Stability.time.yr[which(table7$Stability.time.yr==0)]="Alredy grounded"
 pdf(file.path(outfldr,"table7.pdf"),height=10, width=10)
 grid.table(table7)
 dev.off()
@@ -865,13 +934,90 @@ dev.off()
 map_Yr = mask_super*NA
 for (q in 1:n_reg) {
   kk = which(mask_super==q) 
-  map_Yr[kk] = table7$Stability.time.yr[q]
+  map_Yr[kk] = table7$"dt to ground [yr]"[q]
+  # map_Yr[kk][which(map_Yr[kk]=="Alredy grounded")] = -1
+  # map_Yr[kk][which(map_Yr[kk]=="Never grounded")] = 999999
 }
 
-map_YrN = mask_super*NA
-for (q in 1:n_reg) {
-  kk = which(mask_super==q) 
-  map_YrN[kk] = table7$Stability.year[q]
-}
+# map_YrN = mask_super*NA
+# for (q in 1:n_reg) {
+#   kk = which(mask_super==q) 
+#   map_YrN[kk] = table7$Stability.year[q]
+# }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+##### COMPACT TABLES WITH ROUND VALUES ####
+
+table8=def[nms3]
+table8[2:7]=round(table4[2:7],digits=1)
+table8$"dH/dt (2000-2010) [Gt/yr]"=round(table4$`dH/dt (2000-2010) [Gt/yr]`, digits=1)
+table8$"dH/dt (2071-2100) [Gt/yr]"=round(table4$`dH/dt (2071-2100) [Gt/yr]`, digits=1)
+
+table9=def[nms3]
+table9$"GL [mm/yr]" = round(1000*table3$`GL [m/yr]`, digits=1)
+table9$"IF [mm/yr]" = round(1000*table3$`IF [m/yr]`, digits=1)
+table9$"BM [mm/yr]" = round(1000*table3$`BM [m/yr]`, digits=1)
+table9$"SMB (2000-2010) [mm/yr]" = round(1000*table3$`SMB (2000-2010) [m/yr]`, digits=1)
+table9$"SMB (2071-2100) [mm/yr]" = round(1000*table3$`SMB (2071-2100) [m/yr]`, digits=1)
+table9$"dH/dt (2000-2010) [mm/yr]" = round(1000*table3$`dH/dt (2000-2010) [m/yr]`, digits=1)
+table9$"dH/dt (2071-2100) [mm/yr]" = round(1000*table3$`dH/dt (2071-2100) [m/yr]`, digits=1)
+table9$"Precipitation offset (2000-2010) [mm/yr]" = round(table5$`Precip. offset (2000-2010) [mm/yr]`, digits=1)
+table9$"Precipitation offset (2000-2010) [%]" = round(table5$`Precip. offset (2000-2010) [%]`, digits=1)
+table9$"Precipitation offset (2071-2100) [mm/yr]" = round(table6$`Precip. offset (2071-2100) [mm/yr]`, digits=1)
+table9$"Precipitation offset (2071-2100) [%]" = round(table6$`Precip. offset (2071-2100) [%]`, digits=1)
+
+
+pdf(file.path(outfldr,"table8.pdf"),height=10, width=20)
+grid.table(table8)
+dev.off()
+
+pdf(file.path(outfldr,"table9.pdf"),height=10, width=30)
+grid.table(table9)
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# table3[2:9]=round(table3[2:9],digits=1)
+# table4[2:9]=round(table4[2:9],digits=1)
+# table5[2:6]=round(table5[2:6],digits=1)
+# table6[2:6]=round(table6[2:6],digits=1)
+# 
+# pdf(file.path(outfldr,"table3.pdf"),height=10, width=20)
+# grid.table(table3)
+# dev.off()
+# 
+# pdf(file.path(outfldr,"table4.pdf"),height=10, width=20)
+# grid.table(table4)
+# dev.off()
+# 
+# pdf(file.path(outfldr,"table5.pdf"),height=10, width=20)
+# grid.table(table5)
+# dev.off()
+# 
+# pdf(file.path(outfldr,"table6.pdf"),height=10, width=20)
+# grid.table(table6)
+# dev.off()
 
